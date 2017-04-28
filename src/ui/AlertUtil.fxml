@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import java.lang.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.layout.AnchorPane?>
+
+<AnchorPane fx:id="container" prefHeight="100.0" prefWidth="359.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.AlertUtilController">
+   <children>
+      <Button fx:id="cancel" layoutX="285.0" layoutY="67.0" mnemonicParsing="false" prefHeight="23.0" prefWidth="60.0" text="取消" AnchorPane.bottomAnchor="10.0" />
+      <Button fx:id="confirm" layoutX="215.0" layoutY="67.0" mnemonicParsing="false" prefHeight="23.0" prefWidth="60.0" text="确认" AnchorPane.bottomAnchor="10.0" />
+      <Label fx:id="promptLabel" layoutX="32.0" layoutY="14.0" prefHeight="49.0" prefWidth="322.0" AnchorPane.leftAnchor="15.0" AnchorPane.rightAnchor="15.0" AnchorPane.topAnchor="10.0" />
+   </children>
+</AnchorPane>

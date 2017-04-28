@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import java.lang.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.layout.AnchorPane?>
+
+<BorderPane fx:id="container" fx:controller="controller.MainFrameController" prefHeight="560.0" prefWidth="690.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
+   <top>
+      <VBox fx:id="top_VBox">
+         <children>
+            <ToolBar fx:id="top_ToolBar" minHeight="80.0" prefHeight="80.0" prefWidth="690.0">
+               <items>
+<!--                onMouseClicked="#addLabelAction" -->
+                  <Label fx:id="top_dbLabel" text="数据库连接">
+                     <padding>
+                        <Insets left="10.0" right="10.0" />
+                     </padding>
+                  </Label>
+                  <Label fx:id="top_config" text="配置" />
+               </items>
+            </ToolBar>
+         </children>
+      </VBox>
+   </top>
+   <center>
+      <SplitPane fx:id="center_SplitPane" dividerPositions="0.2369186046511628" BorderPane.alignment="CENTER">
+        <items>
+          <AnchorPane fx:id="center_leftPanel" maxWidth="400.0" minWidth="160.0" prefHeight="480.0" prefWidth="160.0">
+               <children>
+                  <TreeView fx:id="center_dbTreeView" maxWidth="400.0" prefHeight="480.0" prefWidth="160.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+               </children>
+            </AnchorPane>
+          <AnchorPane fx:id="center_rightPane" minWidth="400.0">
+               <children>
+                  <VBox fx:id="center_rightVBox" layoutX="-1.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                     <padding>
+                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                     </padding>
+                  </VBox>
+               </children>
+            </AnchorPane>
+        </items>
+      </SplitPane>
+   </center>
+</BorderPane>
