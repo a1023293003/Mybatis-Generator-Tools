@@ -5,6 +5,7 @@ import java.util.HashMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import Interface.Alert;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -24,53 +25,12 @@ import util.ImageGenerator;
  * @author 随心
  *
  */
-public class AlertUtilController extends BaseController {
+public class AlertPaneController extends BaseController implements Alert {
 	
 	/**
 	 * slf4j日志配置
 	 */
-	private static final Logger _LOG = LoggerFactory.getLogger(AlertUtilController.class);
-	
-	/**
-	 * 不显示任何按钮
-	 */
-	public static final int NONE = 0;
-	
-	/**
-	 * 只包含取消按钮
-	 */
-	public static final int CANCEL = 1;
-
-	/**
-	 * 只包含确定按钮
-	 */
-	public static final int CONFIRM = 2;
-	
-	/**
-	 * 包含控制和取消按钮
-	 */
-	public static final int CONFIRM_CANCEL = 3;
-	
-	
-	/**
-	 * 等待类型
-	 */
-	public static final int LOADING = 0;
-	
-	/**
-	 * 询问类型
-	 */
-	public static final int ASK = 1;
-	
-	/**
-	 * 警告类型
-	 */
-	public static final int WARNING = 2;
-	
-	/**
-	 * ok类型
-	 */
-	public static final int OK = 3;
+	private static final Logger _LOG = LoggerFactory.getLogger(AlertPaneController.class);
 	
 	/**
 	 * 提示信息标签
@@ -124,7 +84,7 @@ public class AlertUtilController extends BaseController {
 		this.cancel.setVisible(this.buttonStyle[style][1]);
 		// 设置按钮位置
 		if(this.buttonStyle[style][2] != null && this.confirm.getLayoutX() < this.cancel.getLayoutX() != this.buttonStyle[style][2]) {
-			// 交换位置
+			// 交换两个按钮的位置
 			Double confirmX = this.confirm.getLayoutX();
 			Double cancelX = this.cancel.getLayoutX();
 			this.confirm.setLayoutX(cancelX);
@@ -200,4 +160,5 @@ public class AlertUtilController extends BaseController {
 		ImageGenerator.createImageView(ImageGenerator.WARNING, 40, 40),
 		ImageGenerator.createImageView(ImageGenerator.OK, 40, 40)
 	};
+	
 }

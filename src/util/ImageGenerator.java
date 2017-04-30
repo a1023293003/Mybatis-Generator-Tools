@@ -3,6 +3,14 @@ package util;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 
+/**
+ * 图片生成器
+ * 
+ * 统一管理程序中图片对象的生成
+ * 
+ * @author 随心
+ *
+ */
 public class ImageGenerator {
 	
 	/**
@@ -51,6 +59,11 @@ public class ImageGenerator {
 	public static final String OK = "/ok.png";
 	
 	/**
+	 * 连接
+	 */
+	public static final String CONNECTION = "/connection.png";
+	
+	/**
 	 * 生成指定规格的图片
 	 * @param path [String]图片路径
 	 * @param width [int]图片宽度
@@ -58,7 +71,9 @@ public class ImageGenerator {
 	 * @return [ImageView]图片对象
 	 */
 	public static ImageView createImageView(String path, int width, int height) {
+		// 新建一个图片视图
 		ImageView imageView = new ImageView(new Image(path));
+		// 设置长宽
 		imageView.setFitWidth(width);
 		imageView.setFitHeight(height);
 		return imageView;

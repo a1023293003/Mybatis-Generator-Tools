@@ -6,7 +6,7 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.layout.AnchorPane?>
 
-<BorderPane fx:id="container" fx:controller="controller.MainFrameController" prefHeight="560.0" prefWidth="690.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
+<BorderPane fx:id="container" prefHeight="560.0" prefWidth="869.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.MainFrameController">
    <top>
       <VBox fx:id="top_VBox">
          <children>
@@ -25,7 +25,7 @@
       </VBox>
    </top>
    <center>
-      <SplitPane fx:id="center_SplitPane" dividerPositions="0.2369186046511628" BorderPane.alignment="CENTER">
+      <SplitPane fx:id="center_SplitPane" dividerPositions="0.18800461361014995" BorderPane.alignment="CENTER">
         <items>
           <AnchorPane fx:id="center_leftPanel" maxWidth="400.0" minWidth="160.0" prefHeight="480.0" prefWidth="160.0">
                <children>

@@ -1,7 +1,5 @@
 package util;
 
-import java.sql.Connection;
-
 import dbAction.MySQLAction;
 
 /**
@@ -21,8 +19,12 @@ public class SQLProxyAction {
 	 * @param code [String]编码格式
 	 * @throws Exception 
 	 */
-	public static MySQLAction getMySQLAction(String ip, String port, String database, String user, String password, String code) throws Exception {
-		code = "useUnicode=true&characterEncoding=" + code + "&useSSL=true&rewriteBatchedStatements=true";
+	public static MySQLAction getMySQLAction(String ip, String port, String database, 
+			String user, String password, String code) throws Exception {
+		// 设置默认编码参数
+		code = "useUnicode=true&characterEncoding=" + 
+				code + 
+				"&useSSL=true&rewriteBatchedStatements=true";
 		return new MySQLAction(ip, port, database, user, password, code);
 	}
 	

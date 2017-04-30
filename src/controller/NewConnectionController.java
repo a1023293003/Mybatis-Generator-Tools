@@ -2,13 +2,17 @@ package controller;
 
 import java.net.URL;
 import java.sql.SQLException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.ResourceBundle;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import Interface.Alert;
 import dbAction.MySQLAction;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
@@ -16,15 +20,14 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
+import util.AlertUtil;
 import util.ConfigProxyReader;
 import util.SQLProxyAction;
 import util.Tools;
 
 /**
  * 新建连接界面
- * 
  * 返回值存储在dto中，包括三个部分
- * 
  * @author 随心
  *
  */
@@ -143,15 +146,13 @@ public class NewConnectionController extends BaseController {
 		// 测试连接按钮添加鼠标单击事件监听
 		this.testConnect.setOnMouseClicked(event -> {
 			// 测试连接
-			testConnectAction();
+			this.tryToGetDtoFromDatabase(false);
 		});
 		
 		// 确认按钮添加鼠标单击事件监听
 		this.confirm.setOnMouseClicked(event -> {
 			// 尝试从数据库中获取数据，并存储到dto中
-			this.tryToGetDtoFromDatabase();
-			// 关闭窗口
-//			this.closeCurrStage();
+			this.tryToGetDtoFromDatabase(true);
 		});
 		
 		// 取消按钮添加鼠标单击事件监听
@@ -164,104 +165,83 @@ public class NewConnectionController extends BaseController {
 	
 	/**
 	 * 尝试从数据库中获取数据，并存储到dto中
+	 * 
+	 * @param actionType [boolean]操作类型，
+	 * 		当actionType为false的时候进行测试连接操作、当actionType为true的时候为连接并读取数据操作
 	 */
-	private void tryToGetDtoFromDatabase() {
-		MySQLAction dao = null;
-		try {
-			// 尝试获取一个数据库操作对象
-			dao = this.connectSQLAction();
-			// 读取数据并存储到dto中
-			// 获取数据库中所有表
-			List tables = Tools.isNull(dao.getTables(this.databaseName.getText()));
-		} catch (Exception e) {
-			final AlertUtilController alert = (AlertUtilController) this.createDialog(getCurrStage(), "提示", "/ui/AlertUtil.fxml");
-			this.exceptionAction(alert, e);
-			Thread test = new Thread() {
-				
-				@Override
-				public void run() {
-					super.run();
-					while(alert.getCurrStage().isShowing());
-				}
-			};
-			test.start();
-			
-		} finally {
-			try {
-				if(dao != null) {
-					// 释放资源
-					dao.free();
-				}
-			} catch (Exception e2) {
-				e2.printStackTrace();
-			}
-		}
-	}
-	
-	/**
-	 * 测试连接操作
-	 * @return
-	 */
-	private boolean testConnectAction() {
-		// 弹出提示窗口
-		final AlertUtilController alert = (AlertUtilController) this.createDialog(getCurrStage(), "提示", "/ui/AlertUtil.fxml");
-		// TODO 存在线程堵塞，用多线程优化 
-		final String msg = "连接到 " + this.ip.getText() + ":" + this.port.getText();
-//		alert.setAlertStyle(msg, AlertUtilController.NONE, AlertUtilController.LOADING);
-
-		new Thread() {
+	private void tryToGetDtoFromDatabase(boolean actionType) {
+		// 弹出等待提示框
+		Alert alert = AlertUtil.getLoadingAlert(
+				getCurrStage(), "提示", "连接到 " + this.ip.getText() + ":" + this.port.getText()
+		);
+		// 创建一个线程公用的Map空间存储变量
+		final Map<String, Object> threadMap = new HashMap<String, Object>();
+		threadMap.put("alert", alert);
+		// 新建一个线程尝试连接数据库
+		Platform.runLater(new Runnable() {
 			
 			@Override
 			public void run() {
-				super.run();
-				// 设置窗口类型为等待提示
-				alert.setAlertStyle(msg, AlertUtilController.NONE, AlertUtilController.LOADING);
-
+				// 主线程弹出的提示框
+				Alert alert = (Alert) threadMap.get("alert");
+				// MySQL数据库操作对象
+				MySQLAction dao = null;
+				try {
+					// 尝试连接数据库
+					dao = connectSQLAction();
+					// 判断操作类型
+					if(!actionType) {
+						// 释放资源
+						dao.free();
+						// 更改提示框
+						alert.setAlertStyle("连接成功", Alert.CONFIRM, Alert.OK);
+						return;
+					}
+					// 创建dto对象
+					setDto(new HashMap<Object, Object>());
+					// 连接名
+					getDto().put("connectionName", connectionName.getText());
+					// 数据库名
+					getDto().put("databaseName", databaseName.getText());
+					// 读取数据库中所有表名
+					List<String> tables = dao.getTables(databaseName.getText());
+					getDto().put("tables", tables);
+					// 读取所有表名的字段
+					for(String table : tables) {
+						getDto().put(table, dao.getField(databaseName.getText(), table));
+					}
+					// 关闭提示框
+					alert.closeCurrStage();
+					// 关闭当前窗口层
+					closeCurrStage();
+				} catch (Exception e) {
+					// 异常提示
+					Tools.exceptionAction(alert, e);
+				} finally {
+					if(dao != null) {
+						// 释放资源
+						dao.free();
+					}
+				}
+				
 			}
-		}.start();
-		try {
-			// 尝试获取数据库操作对象
-			this.connectSQLAction().free();
-			// 更新提示
-			alert.setAlertStyle("连接成功！", AlertUtilController.CONFIRM, AlertUtilController.OK);
-		} catch (Exception e) {
-			_LOG.error("连接数据库失败:{}", e.getMessage());
-			// 弹出警告
-//			alert.setAlertStyle(e.getMessage(), AlertUtilController.CONFIRM, AlertUtilController.WARNING);
-			this.exceptionAction(alert, e);
-			return false;
-		}
-		return true;
+		});
 	}
 	
 	/**
 	 * 连接数据库操作，获取一个MySQL数据库操作对象，用完之后记得销毁
+	 * 
 	 * @return [MySQLAction]MySQL数据库操作对象
 	 * @throws Exception 
 	 */
-	private MySQLAction connectSQLAction() throws Exception {
+	public MySQLAction connectSQLAction() throws Exception {
 		// 获取一个MySQL数据库操作对象
-		return SQLProxyAction.getMySQLAction(this.ip.getText(), this.port.getText(), this.databaseName.getText(), this.userName.getText(), this.password.getText(), this.codes.getSelectionModel().getSelectedItem());
+		return SQLProxyAction.getMySQLAction(
+				this.ip.getText(), 
+				this.port.getText(), 
+				this.databaseName.getText(), 
+				this.userName.getText(), 
+				this.password.getText(), 
+				this.codes.getSelectionModel().getSelectedItem());
 	}
-
-	/**
-	 * 异常统一处理方法
-	 * @param e
-	 */
-	private void exceptionAction(AlertUtilController alert, Exception e) {
-		if(e instanceof NullPointerException) {
-			_LOG.error("空指针异常！");
-			alert.setAlertStyle("空指针异常！\n" + e.getMessage(), AlertUtilController.CONFIRM, AlertUtilController.WARNING);
-			e.printStackTrace();
-		} else if(e instanceof SQLException) {
-			_LOG.error("数据库操作异常:{}", e.getMessage());
-			alert.setAlertStyle("数据库操作异常！\n" + e.getMessage(), AlertUtilController.CONFIRM, AlertUtilController.WARNING);
-			e.printStackTrace();
-		} else {
-			_LOG.warn("未知错误！");
-			alert.setAlertStyle("未知错误！\n" + e.getMessage(), AlertUtilController.CONFIRM, AlertUtilController.WARNING);
-			e.printStackTrace();
-		}
-	}
-	
 }

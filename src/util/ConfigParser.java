@@ -2,6 +2,8 @@ package util;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -9,6 +11,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.Reader;
+import java.net.URISyntaxException;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map.Entry;
@@ -19,13 +22,13 @@ import org.slf4j.LoggerFactory;
 
 
 /**
- * ConfigParser
- * 针对Properties进行功能拓展的工具类
- * 
+ * <p>ConfigParser</p>
+ * <p>针对Properties进行功能拓展的工具类。</p>
+ * <pre>
  * 拓展了两个主要功能
- * 1、修改配置文件中已存在的键值对保存的时候保留注释
- * 2、修改配置文件时不改变配置文件中的键值对顺序
- * 
+ * &lt;1、修改配置文件中已存在的键值对保存的时候保留注释 &gt;
+ * &lt;2、修改配置文件时不改变配置文件中的键值对顺序 &gt;
+ * </pre>
  * @author 随心
  *
  */
@@ -39,7 +42,7 @@ public class ConfigParser {
 	/**
 	 * 配置文件的路径
 	 */
-	private final String PRO_PATH = "config.properties";
+	private String PRO_PATH = "config.properties";
 	
 	/**
 	 * 配置文件对象
@@ -52,19 +55,38 @@ public class ConfigParser {
 	private LinkedHashMap<String, String> comments = new LinkedHashMap<String, String>();
 
 	/**
-	 * 单例模式
+	 * 构造方法
+	 * @throws FileNotFoundException 配置文件不存在异常
+	 * @throws URISyntaxException 经过检查的指示字符串不能解析为 URI 引用的异常
 	 */
-	private static ConfigParser configParser = new ConfigParser();
-	
-	private ConfigParser() {
+	public ConfigParser(String path) throws FileNotFoundException, URISyntaxException {
+		// 设置配置文件路径
+		this.PRO_PATH = this.isExist(path);
 		// 读取配置文件
 		readProperties();
 	}
-	
-	public static ConfigParser getConfigParser() {
-		return configParser;
-	}
 
+	/**
+	 * 判断配置文件是否存在。
+	 * 存在则返回配置文件路径相对路径，失败则抛出异常。
+	 * @param path [String]文件路径
+	 * @return [String]文件相对路径
+	 * @throws URISyntaxException 经过检查的指示字符串不能解析为 URI 引用的异常
+	 * @throws FileNotFoundException 配置文件不存在异常
+	 */
+	private String isExist(String path) throws URISyntaxException, FileNotFoundException {
+			// 获取绝对路径
+			String absolutePath = path.startsWith("/") ? 
+					path : 
+					ConfigParser.class.getClassLoader().getResource("").toURI().getPath() + path;
+			// 判断文件是否存在，判断是否是文件夹路径
+			File file = new File(absolutePath);
+			if(!file.exists() || file.isDirectory()) {
+				throw new FileNotFoundException("配置文件路径错误！:" + path);
+			}
+			return path;
+	}
+	
 	/**
 	 * 修改配置文件已存在的键值对
 	 * @param key [String]键值对的键
