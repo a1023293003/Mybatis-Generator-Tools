@@ -13,17 +13,23 @@ import org.slf4j.LoggerFactory;
 import Interface.Alert;
 import dbAction.MySQLAction;
 import javafx.application.Platform;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
+import po.TableField;
 import util.AlertUtil;
 import util.ConfigProxyReader;
 import util.SQLProxyAction;
 import util.Tools;
+import util.TypeConverter;
 
 /**
  * 新建连接界面
@@ -161,6 +167,15 @@ public class NewConnectionController extends BaseController {
 			this.closeCurrStage();
 		});
 		
+		// 数据库输入行添加键盘回车监听
+		this.databaseName.setOnKeyPressed(event -> {
+			// 按下了回车键
+			if(event.getCode() == KeyCode.ENTER) {
+				// 相当于按了确认键，尝试从数据库中获取数据，并存储到dto中
+				this.tryToGetDtoFromDatabase(true);
+			}
+		});
+		
 	}
 	
 	/**
@@ -172,7 +187,7 @@ public class NewConnectionController extends BaseController {
 	private void tryToGetDtoFromDatabase(boolean actionType) {
 		// 弹出等待提示框
 		Alert alert = AlertUtil.getLoadingAlert(
-				getCurrStage(), "提示", "连接到 " + this.ip.getText() + ":" + this.port.getText()
+				getCurrStage(), "连接到 " + this.ip.getText() + ":" + this.port.getText()
 		);
 		// 创建一个线程公用的Map空间存储变量
 		final Map<String, Object> threadMap = new HashMap<String, Object>();
@@ -197,19 +212,8 @@ public class NewConnectionController extends BaseController {
 						alert.setAlertStyle("连接成功", Alert.CONFIRM, Alert.OK);
 						return;
 					}
-					// 创建dto对象
-					setDto(new HashMap<Object, Object>());
-					// 连接名
-					getDto().put("connectionName", connectionName.getText());
-					// 数据库名
-					getDto().put("databaseName", databaseName.getText());
-					// 读取数据库中所有表名
-					List<String> tables = dao.getTables(databaseName.getText());
-					getDto().put("tables", tables);
-					// 读取所有表名的字段
-					for(String table : tables) {
-						getDto().put(table, dao.getField(databaseName.getText(), table));
-					}
+					// 把数据安装到dto中
+					loadDto(dao);
 					// 关闭提示框
 					alert.closeCurrStage();
 					// 关闭当前窗口层
@@ -226,6 +230,36 @@ public class NewConnectionController extends BaseController {
 				
 			}
 		});
+	}
+	
+	/**
+	 * 把数据安装到dto中
+	 * 
+	 * @param dao [MySQLAction]mysql操作对象
+	 */
+	private void loadDto(MySQLAction dao) {
+		// 创建dto对象
+		setDto(new HashMap<Object, Object>());
+		// 连接名
+		getDto().put("connectionName", connectionName.getText());
+		// 数据库名
+		getDto().put("databaseName", databaseName.getText());
+		// 读取数据库中所有表名
+		List<String> tables = dao.getTables(databaseName.getText());
+		getDto().put("tables", tables);
+		// 读取所有表名的字段
+		for(String table : tables) {
+			// 设置表字段配置中的默认映射属性名和java类型
+			List<TableField> tableFields = dao.getField(databaseName.getText(), table);
+			for(TableField tableField : tableFields) {
+				// 默认映射属性名为表名
+				tableField.setCustomizedField(tableField.getField());
+				// 默认java类型 
+				tableField.setJavaType(TypeConverter.jdbcTypeToJavaTypeClassName(tableField.getType()));
+			}
+			// 表字段配置存储到dto中
+			getDto().put(table, tableFields);
+		}
 	}
 	
 	/**

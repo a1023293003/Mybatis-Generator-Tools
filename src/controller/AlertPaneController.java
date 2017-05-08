@@ -83,7 +83,8 @@ public class AlertPaneController extends BaseController implements Alert {
 		this.confirm.setVisible(this.buttonStyle[style][0]);
 		this.cancel.setVisible(this.buttonStyle[style][1]);
 		// 设置按钮位置
-		if(this.buttonStyle[style][2] != null && this.confirm.getLayoutX() < this.cancel.getLayoutX() != this.buttonStyle[style][2]) {
+		if(this.buttonStyle[style][2] != null && 
+				this.confirm.getLayoutX() < this.cancel.getLayoutX() != this.buttonStyle[style][2]) {
 			// 交换两个按钮的位置
 			Double confirmX = this.confirm.getLayoutX();
 			Double cancelX = this.cancel.getLayoutX();

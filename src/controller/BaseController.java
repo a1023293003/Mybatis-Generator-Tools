@@ -50,7 +50,8 @@ public class BaseController implements Initializable {
 	private Map<Object, Object> dto = null;
 	
 	/**
-	 * 通过传入的父级层、标题、fxml路径以及fxml对应的控制器的类的全路径创建一个弹出窗口，并返回弹出窗口的控制器
+	 * 通过传入的父级层、标题、fxml路径，
+	 * 创建一个弹出窗口，并返回弹出窗口的控制器
 	 * 
 	 * @param parentsStage [Stage]父页面层
 	 * @param title [String]界面标题

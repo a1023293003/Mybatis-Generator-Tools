@@ -12,8 +12,10 @@ import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.Reader;
 import java.net.URISyntaxException;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
 
@@ -47,12 +49,17 @@ public class ConfigParser {
 	/**
 	 * 配置文件对象
 	 */
-	private Properties config = new Properties();
+//	private Properties config = new Properties();
 	
 	/**
 	 * 注释
 	 */
 	private LinkedHashMap<String, String> comments = new LinkedHashMap<String, String>();
+	
+	/**
+	 * 键值对
+	 */
+	private Map<String, String> config = new HashMap<String, String>();
 
 	/**
 	 * 构造方法
@@ -66,6 +73,21 @@ public class ConfigParser {
 		readProperties();
 	}
 
+	/**
+	 * 获取配置文件中所有的键值对
+	 * 
+	 * @return [Map<String, String>]存储键值对的map
+	 */
+	public Map<String, String> getAllKeyValues() {
+		// 创建存储键值对的map
+		Map<String, String> keyValues = new HashMap<String, String>();
+		// 遍历Entry
+		for(Entry<String, String> entry : this.config.entrySet()) {
+			keyValues.put(entry.getKey().toString(), entry.getValue().toString());
+		}
+		return keyValues;
+	}
+	
 	/**
 	 * 判断配置文件是否存在。
 	 * 存在则返回配置文件路径相对路径，失败则抛出异常。
@@ -110,7 +132,7 @@ public class ConfigParser {
 				return;
 			}
 			// 更新配置中的值
-			this.config.setProperty(key, value);
+			this.config.put(key, value);
 			// 修改注释
 			if(comments != null) {
 				this.comments.put(key, comments == null ? "" : "# " + comments + "\n");
@@ -120,7 +142,12 @@ public class ConfigParser {
 			// 遍历Map写入内容
 			for(Entry<String, String> entry : this.comments.entrySet()) {
 				// 写入注释 + key + value + 换行
-				writer.print(entry.getValue() + entry.getKey() + "=" + this.config.getProperty(entry.getKey()) + "\n");
+				writer.print(
+						entry.getValue() + 
+						entry.getKey() + 
+						"=" + 
+						this.config.get(entry.getKey()) + "\n"
+				);
 			}
 			_LOG.info("修改配置文件{}配置成功！", this.PRO_PATH);
 		} catch (Exception e) {
@@ -137,6 +164,29 @@ public class ConfigParser {
 			}
 			// 不读取更新后的文件，只更新内存中的值
 		}
+	}
+	
+	/**
+	 * 读取指定key在配置文件中对应的注释
+	 * 
+	 * @param key [String]键值
+	 * @return [String]键值在配置文件中的数据
+	 */
+	public String getComment(String key) {
+		// 数据合法性
+		if(!Tools.isValid(this.comments.get(key))) return "";
+		// 读取注释字符串的字符数组
+		char[] comment = this.comments.get(key).toCharArray();
+		// 如果注释是以回车符结尾
+		if(comment[comment.length - 1] == '\n') {
+			// 创建缓存数组
+			char[] buf = new char[comment.length - 1];
+			// 复制数组
+			System.arraycopy(comment, 0, buf, 0, buf.length);
+			comment = buf;
+		}
+		// 利用正则匹配滤掉注释符号和注释符号之后的前导空格
+		return String.valueOf(comment).replaceAll("[#!][ \t\f]*", "");
 	}
 	
 	/**
@@ -170,7 +220,7 @@ public class ConfigParser {
 			newConfig.store(new OutputStreamWriter(outStream), comments);
 			_LOG.info("新增配置文件{}配置成功！", this.PRO_PATH);
 			// 不读取文件信息，只是更新一下内存中的值
-			this.config.setProperty(key, value);
+			this.config.put(key, value);
 			this.comments.put(key, comments == null ? "" : comments);
 		} catch (Exception e) {
 			_LOG.error("新增配置文件{}配置失败！", this.PRO_PATH);
@@ -193,53 +243,42 @@ public class ConfigParser {
 	 * 读取配置文件
 	 */
 	private synchronized void readProperties() {
-		// 输入流数组
-		InputStream[] inStreams = new InputStream[3];
-		// 读取器的数组
-		InputStreamReader[] readers = new InputStreamReader[2];
-		// 输入流中的字节数组
-		byte[] streamBytes = null;
+		// 输入流
+		InputStream inStreams = null;
+		// 读取器
+		InputStreamReader readers = null;
 		try {
 			// 读取输入流
-			inStreams[0] = ConfigParser.class.getClassLoader().getResourceAsStream(PRO_PATH);
-			// 获取输入流字节数组
-			streamBytes = getInputStreamBytes(inStreams[0]);
-			// 利用reader处理中文乱码问题，用于读取注释
-			readers[0] = new InputStreamReader(inStreams[1] = new ByteArrayInputStream(streamBytes), "UTF-8");
-			// 利用reader处理中文乱码问题，用于读取键值对
-			readers[1] = new InputStreamReader(inStreams[2] = new ByteArrayInputStream(streamBytes), "UTF-8");
+			inStreams = ConfigParser.class.getClassLoader().getResourceAsStream(PRO_PATH);
+			// 利用reader处理中文乱码问题，用于读取配置内容
+			readers = new InputStreamReader(inStreams, "UTF-8");
 			// 利用reader处理中文乱码问题, "UTF-8");
-			if(readers[0] != null) {
-				// 读取注释信息
-				readComments(readers[0]);
+			if(readers != null) {
 				// 读取配置文件内容
-				this.config.load(readers[1]);
+				readComments(readers);
 			}
 			_LOG.info("读取配置文件成功！");
 		} catch (Exception e) {
 			_LOG.error("读取配置文件失败！");
 			e.printStackTrace();
 		} finally {
-				try {
-					// 关闭输入流
-					for(InputStream is : inStreams) {
-						if(is != null) {
-							is.close();
-						}
-					}
-					// 关闭读取器
-					for(InputStreamReader isr : readers) {
-						if(isr != null) {
-							isr.close();
-						}
-					}
-				} catch (Exception e2) {
-					e2.printStackTrace();
+			try {
+				// 关闭输入流
+				if(inStreams != null) {
+					inStreams.close();
 				}
+				// 关闭读取器
+				if(readers != null) {
+					readers.close();
+				}
+			} catch (Exception e2) {
+				e2.printStackTrace();
+			}
 		}
 	}
 	
 	/**
+	 * TODO 暂时来说并没有什么用
 	 * 获取输入流中的字节
 	 * @param inStream [InputStream]待复制输入流
 	 * @return [byte[]]复制的输入流的字节数组，复制失败返回null
@@ -297,26 +336,49 @@ public class ConfigParser {
 		StringBuffer commentsBuf = new StringBuffer();
 		// 用来截取key
 		String key = null;
+		// 用来截取value值
+		String value = null;
+		// 暂存字符
+		char c = 0;
 		try {
-			// 读取一行数据
+			// 读取一行数据，limit代表字符个数
 			while((limit = lr.readLine()) >= 0) {
+				// 首字符
+				c = lr.lineBuf[0];
 				// unicode编码转成正常显示的中文
 //				line = loadConvert(lr.lineBuf, 0, limit, convtBuf);
 				// 如果改行数据为注释
-				if(lr.lineBuf[0] == '#' || lr.lineBuf[0] == '!') {
+				if(c == '#' || c == '!') {
 					// unicode编码转成正常显示的中文
 					line = loadConvert(lr.lineBuf, 0, limit, convtBuf);
-					// 追加到注释缓存字符串中
+					// 追加换行符和注释到到注释缓存字符串中
 					commentsBuf.append(line + "\n");
 				} else {
 					// 读取键值key
-					for(int i = 1; i < limit; i ++) {
+					for(int keyLen = 1; keyLen < limit; keyLen ++) {
+						// 取出当前字符
+						c = lr.lineBuf[keyLen];
 						// 找到第一个等于号，用来截取key
-						if(lr.lineBuf[i] == '=' && lr.lineBuf[i - 1] != '\\') {
+						if(c == '=' && c != '\\') {
 							// unicode编码转成正常显示的中文
-							key = loadConvert(lr.lineBuf, 0, i, convtBuf);
-							// 存储到LinkedHashMap中
+							key = loadConvert(lr.lineBuf, 0, keyLen, convtBuf);
+							// 截取value，去掉前导空格
+							for(int valueStart = keyLen + 1; valueStart < limit; valueStart ++) {
+								// 取出当前字符
+								c = lr.lineBuf[valueStart];
+								// 去掉前导空格
+								if(c != ' ' && c != '\t' && c != '\f') {
+									value = loadConvert(lr.lineBuf, valueStart, limit - valueStart, convtBuf);
+									break;
+								}
+							}
+							System.out.println("截取出来的key = " + key);
+							System.out.println("截取出来的value = " + value);
+							System.out.println("截取出来的注释 = " + commentsBuf.toString());
+							// 存储注释到LinkedHashMap中
 							this.comments.put(key, commentsBuf.toString());
+							// 存储键值对
+							this.config.put(key, value);
 							// 清空注释缓存内容
 							commentsBuf.setLength(0);
 						}
@@ -335,7 +397,7 @@ public class ConfigParser {
 	 */
 	public String getValue(String key) {
 		try {
-			return config.getProperty(key);
+			return config.get(key);
 		} catch (Exception e) {
 			e.printStackTrace();
 			return null;
@@ -346,14 +408,15 @@ public class ConfigParser {
 	 * 输出配置文件中所有键值对
 	 */
 	public void printAll() {
-		Iterator<String> list = config.stringPropertyNames().iterator();
+		Iterator<String> list = config.keySet().iterator();
 		while(list.hasNext()) {
 			String key = list.next();
 			System.out.println("key : " + key + "  value : " + getValue(key));
 		}
 		System.out.println("注释内容：");
 		for(Entry<String, String> entity : comments.entrySet()) {
-			System.out.println("key : [" + entity.getKey() + "]  comments : [" + entity.getValue() + "]");
+			System.out.println(
+					"key : [" + entity.getKey() + "]  comments : [" + entity.getValue() + "]");
 		}
 	}
 	
@@ -470,7 +533,11 @@ public class ConfigParser {
 
         /**
          * 读取一行数据，包括注释
+         * <pre>
          * 修改的JDK源码
+         * 如果以\结尾，表示内容接着下一行
+         * </pre>
+         * 
          * @return [int]读取到的字符长度
          * @throws IOException
          */
@@ -518,6 +585,7 @@ public class ConfigParser {
                 	// reader因为有设置默认编码，所以直接读取
                     c = inCharBuf[inOff++];
                 }
+                // 如果读取到了\r然后后面接着\n，忽略掉
                 if (skipLF) {
                     skipLF = false;
                     if (c == '\n') {
@@ -558,10 +626,10 @@ public class ConfigParser {
                         // 赋值
                         lineBuf = buf;
                     }
-                    //flip the preceding backslash flag
+                    // flip the preceding backslash flag
                     // 当前字符为反斜杠
                     if (c == '\\') {
-                    	// 取反（好处在意碰到真想输出反斜杠的）
+                    	// 取反（好处在于碰到真想输出反斜杠的）
                         precedingBackslash = !precedingBackslash;
                     } else {
                         precedingBackslash = false;
@@ -599,11 +667,12 @@ public class ConfigParser {
                     if (precedingBackslash) {
                     	// 因为反斜杠的原因，所以读取总长度减一
                         len -= 1;
-                        //skip the leading whitespace characters in following line
+                        // 注释下面两行是为了适应配置文件中的代码格式
+                        // skip the leading whitespace characters in following line
                         // 跳过前导空格
-                        skipWhiteSpace = true;
+//                        skipWhiteSpace = true;
                         // 追加新的一行的开始
-                        appendedLineBegin = true;
+//                        appendedLineBegin = true;
                         // 上一个不是转义符
                         precedingBackslash = false;
                         // 当前字符为回车
@@ -611,7 +680,7 @@ public class ConfigParser {
                             skipLF = true;
                         }
                     } else {
-                    	// 如果读取到\n，则返回
+                    	// 如果读取到\n或\r而且前一个符号不是反斜杠，则返回
                         return len;
                     }
                 }

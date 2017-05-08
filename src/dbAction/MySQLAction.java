@@ -138,9 +138,9 @@ public class MySQLAction {
 	 */
 	public List<TableField> getField(String database, String table) {
 		return this.resultSetToList(
-				this.executeQuery(database, "describe " + table), 
+				this.executeQuery(database, "show full columns from " + table), 
 				TableField.class, 
-				new String[]{"field", "type", "key"}
+				new String[]{"field", "type", "key", "comment"}
 		);
 	}
 	

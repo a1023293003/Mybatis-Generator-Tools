@@ -1,5 +1,6 @@
 package util;
 
+import java.lang.reflect.Field;
 import java.sql.SQLException;
 
 import org.slf4j.Logger;
@@ -7,7 +8,7 @@ import org.slf4j.LoggerFactory;
 
 import Interface.Alert;
 import controller.AlertPaneController;
-import dbAction.MySQLAction;
+import javafx.stage.Stage;
 
 /**
  * 工具类
@@ -84,6 +85,86 @@ public class Tools {
 			s[0] ^= 32;
 		}
 		return String.valueOf(s);
+	}
+	
+	/**
+	 * 把传入字符串中所有大写字母转换成小写字母
+	 * @param str [String]传入字符串
+	 * @return [String]转换后的字符串
+	 */
+	public static String toLowerCaseLetters(String str) {
+		if(str == null) return null;
+		char[] s = str.toCharArray();
+		// 把所有大写字母转换成小写字母
+		for(int i = 0; i < s.length; i ++) {
+			// a - z : 97 - 122、 A - Z : 65 - 90
+			if(s[i] >= 65 && s[i] <= 90) {
+				s[i] += 32;
+			}
+		}
+		return String.valueOf(s);
+	}
+	
+	/**
+	 * 判断字符串内容的有效性
+	 * 
+	 * <pre>
+	 * 字符串不为空，且不全为空格。
+	 * </pre>
+	 * 
+	 * @param str [string]待判断字符串
+	 * @return [boolean]true : 有效、false : 无效
+	 */
+	public static boolean isValid(String str) {
+		return !(str == null || str.trim().length() <= 0);
+	}
+	
+	/**
+	 * 判断数据书否有效，数据不可为空，也不可以全为空格
+	 * 
+	 * @param table [String]数据所在表
+	 * @param datas [String[]]待判断数据名
+	 * @param describes [String[]]数据描述
+	 * @param entity [Object]数据所在对象
+	 * @return [Boolean]数据有效返回true、数据无效返回false
+	 */
+	public static boolean checkDatasValidity(Stage parentsStage, String table, String[] datas, String[] describes, Object entity) {
+		try {
+			// 遍历数据进行检测
+			for(int i = 0; i < datas.length; i ++) {
+				// 通过反射从对象中取出数据
+				Field data = entity.getClass().getDeclaredField(datas[i]);
+				// 因为只是获取对应属性值，所以开启java访问检测，不设置该值的话会抛出异常java.lang.IllegalAccessException
+				data.setAccessible(true);
+				// 检测数据合法性
+				if(!dataIsValid(parentsStage, table, (String) data.get(entity), describes[i])) return false;
+			}
+			return true;
+		} catch(Exception e) {
+			_LOG.error("检测数据合法性出现异常！");
+			e.printStackTrace();
+			return false;
+		}
+	}
+	
+	/**
+	 * 判断数据书否有效，数据不可为空，也不可以全为空格
+	 * 
+	 * @param table [String]数据所在表
+	 * @param data [String]待判断数据
+	 * @param describe [String]数据描述
+	 * @return [Boolean]数据有效返回true、数据无效返回false
+	 */
+	private static boolean dataIsValid(Stage parentsStage, String table, String data, String describe) {
+		// 数据不可为空，也不能全为空格
+		if(data == null || data.trim().length() <= 0) {
+			AlertUtil.getWarningAlert(
+					parentsStage, 
+					table + "表中" + describe + "不能为空或全为空格！"
+			);
+			return false;
+		}
+		return true;
 	}
 	
 }
