@@ -59,7 +59,7 @@ public class ConfigParser {
 	/**
 	 * 键值对
 	 */
-	private Map<String, String> config = new HashMap<String, String>();
+	private LinkedHashMap<String, String> config = new LinkedHashMap<String, String>();
 
 	/**
 	 * 构造方法
@@ -78,9 +78,9 @@ public class ConfigParser {
 	 * 
 	 * @return [Map<String, String>]存储键值对的map
 	 */
-	public Map<String, String> getAllKeyValues() {
+	public LinkedHashMap<String, String> getAllKeyValues() {
 		// 创建存储键值对的map
-		Map<String, String> keyValues = new HashMap<String, String>();
+		LinkedHashMap<String, String> keyValues = new LinkedHashMap<String, String>();
 		// 遍历Entry
 		for(Entry<String, String> entry : this.config.entrySet()) {
 			keyValues.put(entry.getKey().toString(), entry.getValue().toString());

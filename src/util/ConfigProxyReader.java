@@ -1,6 +1,7 @@
 package util;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -58,7 +59,6 @@ public class ConfigProxyReader {
 			TypeReflectConfig = new ConfigParser(BaseConfig.getValue("type.configPath"));
 			// 读取代码生成细则配置文件路径
 			CodeDetailsConfig = new ConfigParser(BaseConfig.getValue("code.configPath"));
-//			CodeDetailsConfig = new ConfigParser("codeDetails.properties");
 		} catch (Exception e) {
 			_LOG.error("配置文件读取失败！");
 			e.printStackTrace();
@@ -210,7 +210,7 @@ public class ConfigProxyReader {
 		// 返回结果
 		String[][] result = new String[2][];
 		// 读取配置文件中所有键值对
-		Map<String, String> keyValues = CodeDetailsConfig.getAllKeyValues();
+		LinkedHashMap<String, String> keyValues = CodeDetailsConfig.getAllKeyValues();
 		// 方法和注释存储数组
 		String[] methods = new String[keyValues.size()];
 		String[] comments = new String[keyValues.size()];
