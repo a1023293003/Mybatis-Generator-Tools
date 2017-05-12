@@ -79,13 +79,7 @@ public class ConfigParser {
 	 * @return [Map<String, String>]存储键值对的map
 	 */
 	public LinkedHashMap<String, String> getAllKeyValues() {
-		// 创建存储键值对的map
-		LinkedHashMap<String, String> keyValues = new LinkedHashMap<String, String>();
-		// 遍历Entry
-		for(Entry<String, String> entry : this.config.entrySet()) {
-			keyValues.put(entry.getKey().toString(), entry.getValue().toString());
-		}
-		return keyValues;
+		return config;
 	}
 	
 	/**
@@ -372,15 +366,17 @@ public class ConfigParser {
 									break;
 								}
 							}
-							System.out.println("截取出来的key = " + key);
-							System.out.println("截取出来的value = " + value);
-							System.out.println("截取出来的注释 = " + commentsBuf.toString());
+							System.out.println("ConfigParser(369):截取出来的key : [" + key + "]");
+							System.out.println("ConfigParser(370):截取出来的value : [" + value + "]");
+							System.out.println("ConfigParser(371):截取出来的注释 : [" + commentsBuf.toString() + "]");
 							// 存储注释到LinkedHashMap中
 							this.comments.put(key, commentsBuf.toString());
 							// 存储键值对
 							this.config.put(key, value);
 							// 清空注释缓存内容
 							commentsBuf.setLength(0);
+							// 跳出
+							break;
 						}
 					}
 				}
@@ -560,8 +556,8 @@ public class ConfigParser {
             	// 判断是否读取完了缓存区中的数据
                 if (inOff >= inLimit) {
                 	// 读取数据到缓存数组中，读取成功返回读取数据长度，读取失败返回-1
-                    inLimit = (inStream==null)?reader.read(inCharBuf)
-                                              :inStream.read(inByteBuf);
+                    inLimit = (inStream==null)? reader.read(inCharBuf)
+                                              : inStream.read(inByteBuf);
                     // 初始化当前读取的字符的位置
                     inOff = 0;
                     if (inLimit <= 0) {
@@ -650,8 +646,8 @@ public class ConfigParser {
                     if (inOff >= inLimit) {
                     	// 读取内容到缓存区
                         inLimit = (inStream==null)
-                                  ?reader.read(inCharBuf)
-                                  :inStream.read(inByteBuf);
+                                  ? reader.read(inCharBuf)
+                                  : inStream.read(inByteBuf);
                         // 初始化读取字符下标为0
                         inOff = 0;
                         // 数据已经读取完毕
@@ -667,7 +663,7 @@ public class ConfigParser {
                     if (precedingBackslash) {
                     	// 因为反斜杠的原因，所以读取总长度减一
                         len -= 1;
-                        // 注释下面两行是为了适应配置文件中的代码格式
+                        // 下面两行是为了适应配置文件中的代码格式
                         // skip the leading whitespace characters in following line
                         // 跳过前导空格
 //                        skipWhiteSpace = true;

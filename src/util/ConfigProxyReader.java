@@ -49,6 +49,17 @@ public class ConfigProxyReader {
 	 */
 	private static ConfigParser CodeDetailsConfig = null;
 	
+	/**
+	 * 配置文件中的mapper接口中的方法和注释信息
+	 */
+	private static String[][] mapperMethodsAndComments = null;
+	
+	/**
+	 * 配置文件中每个mapper方法对应的sql标签
+	 */
+	private static String[] mapperXmlSqlTags = null;
+	
+	// 读取配置文件
 	static {
 		try {
 			// 读取默认配置文件
@@ -207,8 +218,10 @@ public class ConfigProxyReader {
 	 * @return [String[][]]返回方法字符串数组和注释字符串数组组成的二维数组
 	 */
 	public static String[][] getMapperMethodsAndComments() {
-		// 返回结果
-		String[][] result = new String[2][];
+		// 如果已存在读取备份
+		if(mapperMethodsAndComments != null) return mapperMethodsAndComments;
+		// 读取配置文件中每个mapper接口的方法和注释信息
+		mapperMethodsAndComments = new String[2][];
 		// 读取配置文件中所有键值对
 		LinkedHashMap<String, String> keyValues = CodeDetailsConfig.getAllKeyValues();
 		// 方法和注释存储数组
@@ -218,6 +231,7 @@ public class ConfigProxyReader {
 		int index = 0;
 		// 遍历map，提取出mapper的方法和注释
 		for(Entry<String, String> entry : keyValues.entrySet()) {
+			System.out.println("key :[" + entry.getKey() + "]");
 			if(entry.getKey().startsWith("mapper.")) {
 				// 存储方法
 				methods[index] = entry.getValue();
@@ -228,10 +242,55 @@ public class ConfigProxyReader {
 				index ++;
 			}
 		}
-		// 存储到返回结果中
-		result[0] = methods;
-		result[1] = comments;
-		return result;
+		// 截取字符串数组到合适的长度,存储到返回结果中
+		mapperMethodsAndComments[0] = new String[index];
+		System.arraycopy(methods, 0, mapperMethodsAndComments[0], 0, index);
+		mapperMethodsAndComments[1] = new String[index];
+		System.arraycopy(comments, 0, mapperMethodsAndComments[1], 0, index);
+		// 赋值到全局变量mapperMethodsAndComments中
+		return mapperMethodsAndComments;
+	}
+	
+	/**
+	 * 读取mapper.xml配置的头部信息
+	 * @return
+	 */
+	public static String getMapperXmlHeader() {
+		return CodeDetailsConfig.getValue("mapperXml.header");
+	}
+	
+	/**
+	 * 读取mapper接口中方法在mapper.xml中对应的sql语句标签
+	 * @return
+	 */
+	public static String[] getMapperXmlSqlTags() {
+		// 如果已存在读取备份
+		if(mapperXmlSqlTags != null) return mapperXmlSqlTags;
+		// 读取配置文件中所有键值对
+		LinkedHashMap<String, String> keyValues = CodeDetailsConfig.getAllKeyValues();
+		// 读取配置信息把每个方法对应的sql标签分割成字符串数组
+		mapperXmlSqlTags = new String[keyValues.size()];
+		// 数组下标
+		int index = 0;
+		// 提取出来的sql标签
+		String sqlTag = null;
+		// 读取所有以mapper.开头的key（即mapper接口中的方法），找出对应的sql标签
+		for(Entry<String, String> entry : keyValues.entrySet()) {
+			// mapper接口定义的方法
+			if(entry.getKey().startsWith("mapper.")) {
+				// 取出对应的sql标签
+				sqlTag = CodeDetailsConfig.getValue(entry.getKey().replaceAll("mapper.", "mapperXml."));
+				if(sqlTag != null) {
+					// 数据有效则存储起来
+					mapperXmlSqlTags[index ++] = sqlTag;
+				}
+			}
+		}
+		// 截取合适的字符串数组长度
+		String[] buf = new String[index];
+		System.arraycopy(mapperXmlSqlTags, 0, buf, 0, index);
+		mapperXmlSqlTags = buf;
+		return mapperXmlSqlTags;
 	}
 	
 	/**

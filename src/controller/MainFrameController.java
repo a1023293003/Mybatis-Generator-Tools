@@ -566,6 +566,14 @@ public class MainFrameController extends BaseController {
 		tmpConfig = new TableConfig();
 		// 设置字段信息
 		tmpConfig.setFields((List<TableField>) dto.get(table));
+		// 判断是否有主键
+		for(TableField field : tmpConfig.getFields()) {
+			// 判断是否存在主键
+			if(field.getKey().equals("PRI")) {
+				tmpConfig.setExistsPrimaryKey(true);
+				break;
+			}
+		}
 		// 设置表名
 		tmpConfig.setTableName(table);
 		// 表名就是默认pojo类名，首字母大写

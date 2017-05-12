@@ -2,6 +2,9 @@ package util;
 
 import java.lang.reflect.Field;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -166,5 +169,31 @@ public class Tools {
 		}
 		return true;
 	}
+	
+	/**
+	 * 正则匹配模板
+	 * @param str 待匹配内容
+	 * @param patternStr 匹配规则
+	 * @return 匹配成功返回匹配结果，否则返回""
+	 */
+	public static ArrayList<String> RegexString(String str, String patternStr) {
+		// 预定义一个ArrayList来存储结果
+		ArrayList<String> results = new ArrayList<String>();
+		// 定义正则匹配规则
+		Pattern pattern = Pattern.compile(patternStr);
+		// 定义一个matcher来做匹配
+		Matcher matcher = pattern.matcher(str);
+		// 如果找到了
+		boolean isFind = matcher.find();
+		// 使用循环将句子里符合规则的子序列截取出来，存储到results里
+		while(isFind) {
+			results.add(matcher.group(1));
+			// 更新标记
+			isFind = matcher.find();
+		}
+		// 返回找到的结果
+		return results;
+	}
+
 	
 }
