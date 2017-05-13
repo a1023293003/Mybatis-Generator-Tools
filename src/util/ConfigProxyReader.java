@@ -293,6 +293,10 @@ public class ConfigProxyReader {
 		return mapperXmlSqlTags;
 	}
 	
+	public static String getMapperXmlCriteria() {
+		return CodeDetailsConfig.getValue("mapperXml.criteria");
+	}
+	
 	/**
 	 * 读取配置文件中指定键的值，并指定分隔符，把结果分割成list
 	 * @param config [ConfigParser]配置文件拓展类对象

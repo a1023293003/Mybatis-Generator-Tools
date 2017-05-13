@@ -16,12 +16,20 @@ public class TestMain {
 	}
 	
 	public static void main(String[] args) throws Exception {
-		String space = "			";
 		String test = 
-				"\t<if test=\"$CustomizedField != null\">\n" +
-				"\t	$CustomizedField,\n" +
-				"\t</if>\n";
-		System.out.println("替换结果：\n[" + test.replaceAll("\n*?(\t|^\t)",  space) + "]");
+				"\n	<!-- 注释 -->\n" +
+				"	<sql id=\"$CustomizedId\">\n" +
+				"		$CustomizedCollection\n" +
+				"	<\\sql>";
+		String test2 = ConfigProxyReader.getMapperXmlCriteria();
+		System.out.println(test.replaceAll("(.*?)\\$CustomizedId([\\d\\D]*?)\\$CustomizedCollection(.*?)", "$1lalalalal$2kkkkk$3"));
+		System.out.println("test2 : \n[" + test2.replaceAll("(.*?)\\$CustomizedId([\\d\\D]*?)\\$CustomizedCollection(.*?)", "$1lalalalal$2kkkkk$3") + "]");
+//		String space = "			";
+//		String test = 
+//				"\t<if test=\"$CustomizedField != null\">\n" +
+//				"\t	$CustomizedField,\n" +
+//				"\t</if>\n";
+//		System.out.println("替换结果：\n[" + test.replaceAll("\n*?(\t|^\t)",  space) + "]");
 //		// 预定义一个set来过滤重复元素
 //		Set<String> tags = new HashSet<String>();
 //		// 定义正则匹配规则
