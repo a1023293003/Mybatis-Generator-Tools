@@ -109,6 +109,24 @@ public class Tools {
 	}
 	
 	/**
+	 * 把传入字符串中所有小写字母转换成大写字母
+	 * @param str [String]传入字符串
+	 * @return [String]转换后的字符串
+	 */
+	public static String toCapitalLetters(String str) {
+		if(str == null) return null;
+		char[] s = str.toCharArray();
+		// 把所有大写字母转换成小写字母
+		for(int i = 0; i < s.length; i ++) {
+			// a - z : 97 - 122、 A - Z : 65 - 90
+			if(s[i] >= 97 && s[i] <= 122) {
+				s[i] -= 32;
+			}
+		}
+		return String.valueOf(s);
+	}
+	
+	/**
 	 * 判断字符串内容的有效性
 	 * 
 	 * <pre>

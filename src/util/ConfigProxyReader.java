@@ -293,8 +293,44 @@ public class ConfigProxyReader {
 		return mapperXmlSqlTags;
 	}
 	
+	/**
+	 * 读取配置文件中mapper.xml中读取自定义条件的标签块
+	 * @return
+	 */
 	public static String getMapperXmlCriteria() {
 		return CodeDetailsConfig.getValue("mapperXml.criteria");
+	}
+	
+	/**
+	 * 读取配置文件中mapper.xml中读取基础字段
+	 * @return
+	 */
+	public static String getMapperXmlBaseColunmList() {
+		return CodeDetailsConfig.getValue("mapperXml.baseColunmList");
+	}
+	
+	/**
+	 * 读取配置文件中example类基础模板
+	 * @return
+	 */
+	public static String getExampleClassBaseTemplate() {
+		return CodeDetailsConfig.getValue("example.baseTemplate");
+	}
+	
+	/**
+	 * 读取配置文件中example类中内部类Criteria生成类的基础模板
+	 * @return
+	 */
+	public static String getExampleGeneratedCriteriaBaseTemplate() {
+		return CodeDetailsConfig.getValue("example.generatedCriteriaBaseTemplate");
+	}
+	
+	/**
+	 * 读取配置文件中example类中内部类Criteria生成类的各个属性模板方法
+	 * @return
+	 */
+	public static String getExampleGeneratedCriteriaFieldMethods() {
+		return CodeDetailsConfig.getValue("example.generatedCriteriaFieldMethods");
 	}
 	
 	/**

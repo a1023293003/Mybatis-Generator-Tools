@@ -43,6 +43,11 @@ public class MainFrameController extends BaseController {
 	private static final Logger _LOG = LoggerFactory.getLogger(MainFrameController.class);
 	
 	/**
+	 * 最后一次使用文件选择器打开的路径
+	 */
+	private String lastOpenPath = null;
+	
+	/**
 	 * 所有表的配置信息
 	 */
 	private Map<String, TableConfig> tableConfigs = null;
@@ -224,10 +229,19 @@ public class MainFrameController extends BaseController {
 			if(!isRoot) {
 				// 选择pojo类生成路径
 				String path = this.choosePath(
-						this.center_dbTreeView.getSelectionModel().getSelectedItem().getValue());
+						this.center_dbTreeView.getSelectionModel().getSelectedItem().getValue(),
+						this.lastOpenPath != null ? new File(this.lastOpenPath) : null
+				);
 				// 不为空则赋值到界面
 				if(path != null) {
 					this.pojoPath.setText(path);
+					// 更新最后一次选择的路径
+					this.lastOpenPath = path;
+					// 如果当前pojo包名为空
+					if(this.pojoPackage.getText().length() <= 0) {
+						// 尝试截取以src为根目录的包名
+						this.pojoPackage.setText(this.interceptPackage(path));
+					}
 				}
 				
 			}
@@ -239,10 +253,19 @@ public class MainFrameController extends BaseController {
 			if(!isRoot) {
 				// 选择mapper类生成路径
 				String path = this.choosePath(
-						this.center_dbTreeView.getSelectionModel().getSelectedItem().getValue());
+						this.center_dbTreeView.getSelectionModel().getSelectedItem().getValue(),
+						this.lastOpenPath != null ? new File(this.lastOpenPath) : null
+				);
 				// 不为空则赋值到界面
 				if(path != null) {
 					this.mapperPath.setText(path);
+					// 更新最后一次选择的路径
+					this.lastOpenPath = path;
+					// 如果当前pojo包名为空
+					if(this.mapperPackage.getText().length() <= 0) {
+						// 尝试截取以src为根目录的包名
+						this.mapperPackage.setText(this.interceptPackage(path));
+					}
 				}
 				
 			}
@@ -330,6 +353,20 @@ public class MainFrameController extends BaseController {
 		// 提示信息的设置
 		this.setTooltip();
 		
+	}
+	
+	/**
+	 * 通过路径截取包名
+	 * @param path [String]路径
+	 * @return [String]截取的包名
+	 */
+	private String interceptPackage(String path) {
+		// 找到根目录
+		int index = path.indexOf("src");
+		if(index == -1) return null;
+		path = path.substring(index + 4);
+		_LOG.info("截取出来的路径：" + path);
+		return path.replace("\\", ".");
 	}
 	
 	/**
@@ -455,12 +492,14 @@ public class MainFrameController extends BaseController {
 	 * </pre>
 	 * 
 	 * @param table [String]表名
-	 * @return 
+	 * @param initDirectory [File]默认路径
 	 * @return [String]读取到文件夹返回路径、没读取到返回null
 	 */
-	private String choosePath(String table) {
+	private String choosePath(String table, File initDirectory) {
 		// 文件夹选择器
 		DirectoryChooser directoryChooser = new DirectoryChooser();
+		// 设置默认路径
+		if(initDirectory != null) directoryChooser.setInitialDirectory(initDirectory);
 		// 设置父父窗口层，子窗口弹出时父窗口堵塞
         File selectedFolder = directoryChooser.showDialog(this.getCurrStage());
         return selectedFolder.getAbsolutePath();

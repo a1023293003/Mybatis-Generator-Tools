@@ -16,14 +16,17 @@ public class TestMain {
 	}
 	
 	public static void main(String[] args) throws Exception {
-		String test = 
-				"\n	<!-- 注释 -->\n" +
-				"	<sql id=\"$CustomizedId\">\n" +
-				"		$CustomizedCollection\n" +
-				"	<\\sql>";
-		String test2 = ConfigProxyReader.getMapperXmlCriteria();
-		System.out.println(test.replaceAll("(.*?)\\$CustomizedId([\\d\\D]*?)\\$CustomizedCollection(.*?)", "$1lalalalal$2kkkkk$3"));
-		System.out.println("test2 : \n[" + test2.replaceAll("(.*?)\\$CustomizedId([\\d\\D]*?)\\$CustomizedCollection(.*?)", "$1lalalalal$2kkkkk$3") + "]");
+		System.out.println(ConfigProxyReader.getExampleGeneratedCriteriaFieldMethods());
+//		String test = ConfigProxyReader.getExampleClassBaseTemplate();
+//		System.out.println(test.replaceAll("[\t ]*?/\\*\\*[\\d\\D]*?\\*/\n", ""));
+//		String test = 
+//				"\n	<!-- 注释 -->\n" +
+//				"	<sql id=\"$CustomizedId\">\n" +
+//				"		$CustomizedCollection\n" +
+//				"	<\\sql>";
+//		String test2 = ConfigProxyReader.getMapperXmlCriteria();
+//		System.out.println(test.replaceAll("(.*?)\\$CustomizedId([\\d\\D]*?)\\$CustomizedCollection(.*?)", "$1lalalalal$2kkkkk$3"));
+//		System.out.println("test2 : \n[" + test2.replaceAll("(.*?)\\$CustomizedId([\\d\\D]*?)\\$CustomizedCollection(.*?)", "$1lalalalal$2kkkkk$3") + "]");
 //		String space = "			";
 //		String test = 
 //				"\t<if test=\"$CustomizedField != null\">\n" +
