@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.text.*?>
+<?import javafx.scene.control.*?>
+<?import java.lang.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.layout.AnchorPane?>
+
+<AnchorPane prefHeight="410.0" prefWidth="600.0"
+	xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1"
+	fx:controller="controller.CustomizedTableFieldsController">
+	<children>
+		<TableView fx:id="tableFields" editable="true" layoutY="80.0"
+			prefHeight="287.0" prefWidth="600.0" AnchorPane.leftAnchor="0.0"
+			AnchorPane.rightAnchor="0.0">
+			<columns>
+				<TableColumn fx:id="columnName" editable="false"
+					prefWidth="150.0" text="Column Name" />
+				<TableColumn fx:id="jdbcType" editable="false"
+					prefWidth="150.0" text="JDBC Type" />
+				<TableColumn fx:id="propertyName" prefWidth="150.0"
+					text="Property Name" />
+				<TableColumn fx:id="javaType" prefWidth="150.0" text="Java Type" />
+			</columns>
+		</TableView>
+		<Text layoutX="25.0" layoutY="34.0" strokeType="OUTSIDE"
+			strokeWidth="0.0" text="* 如果需要定制字段对应的Java类型或属性名，双击对应区域即可进入修改模式。" />
+		<Text layoutX="25.0" layoutY="49.0" strokeType="OUTSIDE"
+			strokeWidth="0.0" text="* 修改完成之后请务必记得保存设置，以免设置信息丢失。" />
+		<Button fx:id="saveConfigButton" layoutX="431.0" layoutY="373.0"
+			mnemonicParsing="false" prefHeight="27.0" prefWidth="70.0" text="保存设置" />
+		<Button fx:id="cancelButton" layoutX="516.0" layoutY="373.0"
+			mnemonicParsing="false" prefHeight="27.0" prefWidth="70.0" text="取消" />
+		<Text layoutX="25.0" layoutY="64.0" strokeType="OUTSIDE"
+			strokeWidth="0.0" text="* 修改字段后按回车键确认修改，Esc表示取消更改" />
+	</children>
+</AnchorPane>
