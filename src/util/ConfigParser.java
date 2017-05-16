@@ -68,7 +68,8 @@ public class ConfigParser {
 	 */
 	public ConfigParser(String path) throws FileNotFoundException, URISyntaxException {
 		// 设置配置文件路径
-		this.PRO_PATH = this.isExist(path);
+//		this.PRO_PATH = this.isExist(path);
+		this.PRO_PATH = path;
 		// 读取配置文件
 		readProperties();
 	}
@@ -91,16 +92,24 @@ public class ConfigParser {
 	 * @throws FileNotFoundException 配置文件不存在异常
 	 */
 	private String isExist(String path) throws URISyntaxException, FileNotFoundException {
-			// 获取绝对路径
-			String absolutePath = path.startsWith("/") ? 
-					path : 
-					ConfigParser.class.getClassLoader().getResource("").toURI().getPath() + path;
-			// 判断文件是否存在，判断是否是文件夹路径
-			File file = new File(absolutePath);
-			if(!file.exists() || file.isDirectory()) {
-				throw new FileNotFoundException("配置文件路径错误！:" + path);
-			}
-			return path;
+		_LOG.error("配置文件路径：" + new File("").getAbsolutePath());
+		try {
+			_LOG.error("配置文件路径：" + new File("").getCanonicalPath());
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		_LOG.error(ConfigParser.class.getClassLoader().getResource("").toURI().getPath());
+		// 获取绝对路径
+		String absolutePath = path.startsWith("/") ? 
+				path : 
+				ConfigParser.class.getClassLoader().getResource("").toURI().getPath() + path;
+		// 判断文件是否存在，判断是否是文件夹路径
+		File file = new File(absolutePath);
+		if(!file.exists() || file.isDirectory()) {
+			throw new FileNotFoundException("配置文件路径错误！:" + path);
+		}
+		return path;
 	}
 	
 	/**

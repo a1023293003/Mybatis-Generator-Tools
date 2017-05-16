@@ -343,7 +343,11 @@ public class MainFrameController extends BaseController {
 					try {
 						// 生成代码
 						CodeGenerator.generatingCode(this.tableConfigs);
+						// 代码生成成功提示
+						AlertUtil.getOkAlert(this.getCurrStage(), "代码生成完毕！");
 					} catch (Exception e) {
+						// 代码生成失败提示
+						AlertUtil.getWarningAlert(this.getCurrStage(), "代码生成过程中出现错误！\n" + e.getMessage());
 						e.printStackTrace();
 					}
 				}
@@ -548,8 +552,8 @@ public class MainFrameController extends BaseController {
 				_LOG.error("同步配置读取属性异常！");
 				AlertUtil.getWarningAlert(this.getCurrStage(), "同步配置读取属性异常！");
 				e.printStackTrace();
-				// 跳出循环
-				break;
+				// 结束方法
+				return;
 			}
 		}
 	}

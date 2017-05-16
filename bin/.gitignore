@@ -1,9 +1,1 @@
-/controller/
-/ui/
-/util/
-/dbAction/
-/mysqlTypeReflect.class
-/mysqlTypeReflect.properties
-/po/
-/core/
-/generatingCode.properties
+/application/
