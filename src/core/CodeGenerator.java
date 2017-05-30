@@ -89,10 +89,10 @@ public class CodeGenerator {
 				writer.println("import java.util.List;");
 				// 类名
 				writer.print("\npublic class " + tableConfig.getPojoClassName() + "Example {\n");
-				// 读取基础模板，顺带判断是否保留注释
+				// 读取基础模板，判断是否保留注释
 				String exampleBaseTemplate = ConfigProxyReader.getExampleClassBaseTemplate();
 				if(!tableConfig.isBuildNote()) exampleBaseTemplate.replaceAll("[\t ]*?/\\*\\*[\\d\\D]*?\\*/\n", "");
-				// 写入基础模板，顺带替换example类名
+				// 写入基础模板，替换example类名
 				writer.println(exampleBaseTemplate.replace("$ExampleName", tableConfig.getPojoClassName() + "Example"));
 				// example类中的GeneratedCriteria类
 				writer.print(generatingGeneratedCriteriaClass(tableConfig));

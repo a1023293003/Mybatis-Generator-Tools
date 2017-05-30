@@ -257,7 +257,7 @@ public class NewConnectionController extends BaseController {
 				// 默认java类型 
 				tableField.setJavaType(TypeConverter.jdbcTypeToJavaTypeClassName(tableField.getType()));
 				// jdbc类型
-				String type = Tools.toCapitalLetters(tableField.getType().substring(0, tableField.getType().indexOf("(")));
+				String type = Tools.toUpperCaseLetters(tableField.getType().substring(0, tableField.getType().indexOf("(")));
 				tableField.setJdbcType(type.equals("INT") ? "INTEGER" : type);
 			}
 			// 表字段配置存储到dto中

@@ -113,7 +113,7 @@ public class Tools {
 	 * @param str [String]传入字符串
 	 * @return [String]转换后的字符串
 	 */
-	public static String toCapitalLetters(String str) {
+	public static String toUpperCaseLetters(String str) {
 		if(str == null) return null;
 		char[] s = str.toCharArray();
 		// 把所有大写字母转换成小写字母
@@ -141,7 +141,12 @@ public class Tools {
 	}
 	
 	/**
-	 * 判断数据书否有效，数据不可为空，也不可以全为空格
+	 * 用于监测某个对象种指定属性的数据是否有效。
+	 * 判断数据是否有效，数据不可为空，也不可以全为空格
+	 * 
+	 * <pre>
+	 * 在主界面控制器中调用，用于检查各个表的配置信息是否完整。
+	 * </pre>
 	 * 
 	 * @param table [String]数据所在表
 	 * @param datas [String[]]待判断数据名
@@ -169,7 +174,8 @@ public class Tools {
 	}
 	
 	/**
-	 * 判断数据书否有效，数据不可为空，也不可以全为空格
+	 * 用于监测某个对象种指定属性的数据是否有效。
+	 * 判断数据是否有效，数据不可为空，也不可以全为空格
 	 * 
 	 * @param table [String]数据所在表
 	 * @param data [String]待判断数据
