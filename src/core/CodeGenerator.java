@@ -272,7 +272,7 @@ public class CodeGenerator {
 		// 判断文件是否已经存在，如果不存在则创建
 		File file = new File(path);
 		if(!file.exists()) file.createNewFile();
-		return new PrintWriter(file);
+		return new PrintWriter(file, "UTF-8");
 	}
 	
 	/**
@@ -450,7 +450,7 @@ public class CodeGenerator {
 		if(data.contains("$WherePrimaryKeys")) {
 			// 占位符替换成基础模板
 			data = getPrefixSpaceData("$WherePrimaryKeys", 
-					concatBaseTemplate(tableConfig, "\t$Field = {#$CustomizedField, jdbcType=$JdbcType} and\n", 
+					concatBaseTemplate(tableConfig, "\t$Field = #{$CustomizedField, jdbcType=$JdbcType} and\n", 
 							true, false, "", "", "", "and\n"), 
 					data
 			);
