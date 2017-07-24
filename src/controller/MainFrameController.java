@@ -1,13 +1,11 @@
 package controller;
 
 import java.io.File;
-import java.io.IOException;
 import java.lang.reflect.Field;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.ResourceBundle;
 
 import org.slf4j.Logger;
@@ -232,15 +230,17 @@ public class MainFrameController extends BaseController {
 						this.center_dbTreeView.getSelectionModel().getSelectedItem().getValue(),
 						this.lastOpenPath != null ? new File(this.lastOpenPath) : null
 				);
+				System.out.println("选择的文件路径：" + path);
 				// 不为空则赋值到界面
 				if(path != null) {
+					System.out.println("赋值到界面上");
 					this.pojoPath.setText(path);
 					// 更新最后一次选择的路径
 					this.lastOpenPath = path;
-					// 如果当前pojo包名为空
-					if(this.pojoPackage.getText().length() <= 0) {
-						// 尝试截取以src为根目录的包名
-						this.pojoPackage.setText(this.interceptPackage(path));
+					// 尝试截取以src为根目录的包名
+					String classPackage = this.interceptPackage(path);
+					if(classPackage != null) {
+						this.pojoPackage.setText(classPackage);
 					}
 				}
 				
@@ -261,10 +261,10 @@ public class MainFrameController extends BaseController {
 					this.mapperPath.setText(path);
 					// 更新最后一次选择的路径
 					this.lastOpenPath = path;
-					// 如果当前pojo包名为空
-					if(this.mapperPackage.getText().length() <= 0) {
-						// 尝试截取以src为根目录的包名
-						this.mapperPackage.setText(this.interceptPackage(path));
+					// 尝试截取以src为根目录的包名
+					String classPackage = this.interceptPackage(path);
+					if(classPackage != null) {
+						this.mapperPackage.setText(classPackage);
 					}
 				}
 				
@@ -483,6 +483,7 @@ public class MainFrameController extends BaseController {
 	 * 
 	 * @param dto [Map<Object, Object>]定制属性页面传回来的数据传输对象
 	 */
+	@SuppressWarnings("unchecked")
 	private void readTableFieldConfigFromDto(Map<Object, Object> dto) {
 		// 没有返回数据
 		if(dto == null || dto.get("tableFields") == null) return;
@@ -513,7 +514,7 @@ public class MainFrameController extends BaseController {
 		if(initDirectory != null) directoryChooser.setInitialDirectory(initDirectory);
 		// 设置父父窗口层，子窗口弹出时父窗口堵塞
 		File selectedFolder = directoryChooser.showDialog(this.getCurrStage());
-		return selectedFolder.getAbsolutePath();
+		return selectedFolder != null ? selectedFolder.getAbsolutePath() : null;
 	}
 	
 	/**

@@ -1,7 +1,7 @@
 package controller;
 
+import java.lang.reflect.Field;
 import java.net.URL;
-import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -13,17 +13,14 @@ import org.slf4j.LoggerFactory;
 import Interface.Alert;
 import dbAction.MySQLAction;
 import javafx.application.Platform;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
+import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.AnchorPane;
-import javafx.stage.Stage;
 import po.TableField;
 import util.AlertUtil;
 import util.ConfigProxyReader;
@@ -167,15 +164,38 @@ public class NewConnectionController extends BaseController {
 			this.closeCurrStage();
 		});
 		
-		// 数据库输入行添加键盘回车监听
-		this.databaseName.setOnKeyPressed(event -> {
-			// 按下了回车键
-			if(event.getCode() == KeyCode.ENTER) {
-				// 相当于按了确认键，尝试从数据库中获取数据，并存储到dto中
-				this.tryToGetDtoFromDatabase(true);
-			}
-		});
+		// 为新建数据库连接界面的所有文本框添加键盘回车事件
+		this.setActionOnKeyPressed();
 		
+	}
+	
+	/**
+	 * 为新建数据库连接界面的所有文本框添加键盘回车事件
+	 * @see controller.NewConnectionController#initialize(URL, ResourceBundle) 初始化界面
+	 */
+	private void setActionOnKeyPressed() {
+		// 反射获取当前类所有属性
+		Field[] fields = this.getClass().getDeclaredFields();
+		if(fields != null) {
+			for(Field field : fields) {
+				try {
+					// 获取当前对象的属性
+					Object obj = field.get(this);
+					// 但凡是文本框类型的属性都添加回车事件
+					if(obj instanceof TextField) {
+						((TextField) obj).setOnKeyPressed(event -> {
+							// 按下了回车键
+							if(event.getCode() == KeyCode.ENTER) {
+								// 相当于按了确认键，尝试从数据库中获取数据，并存储到dto中
+								this.tryToGetDtoFromDatabase(true);
+							}
+						});
+					}
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		}
 	}
 	
 	/**

@@ -188,7 +188,7 @@ public class CodeGenerator {
 							(tableConfig.getPojoPackage() != null ? "." : "") + tableConfig.getPojoClassName() + "Example;");					
 				}
 				// 获取需要引入的类的全路径
-				writer.print(getImportFieldsJavaTypeQualifiedName(tableConfig));
+				writer.print(getImportFieldsJavaTypeQualifiedName(tableConfig, true));
 				writer.println("import java.util.List;");
 				// mybatis参数注解解析包名
 				writer.println("import org.apache.ibatis.annotations.Param;");
@@ -276,22 +276,38 @@ public class CodeGenerator {
 	}
 	
 	/**
-	 * 获取所有属性需要引入的import语句
+	 * 获取属性需要引入的import语句
+	 * @see core.CodeGenerator#generatingPoClass(Map) 用于生成PoJo类
+	 * @see core.CodeGenerator#generatingExampleClass(Map) 用于生成Example类
 	 * @param tableConfig [TableConfig]表的配置信息
-	 * @return [String]可以直接插入的所有属性的import语句的字符串
+	 * @return [String]可以直接插入的属性的import语句的字符串
 	 */
 	private static String getImportFieldsJavaTypeQualifiedName(TableConfig tableConfig) {
+		return getImportFieldsJavaTypeQualifiedName(tableConfig, false);
+	}
+	
+	/**
+	 * 获取属性需要引入的import语句
+	 * @see core.CodeGenerator#getImportFieldsJavaTypeQualifiedName(TableConfig) 用于简化方法调用参数
+	 * @see core.CodeGenerator#generatingMapperClass(Map) 用于生成Mapper类
+	 * @param tableConfig [TableConfig]表的配置信息
+	 * @param onlyPriKey [boolean]近返回主键需要引入的import语句
+	 * @return [String]可以直接插入的属性的import语句的字符串
+	 */
+	private static String getImportFieldsJavaTypeQualifiedName(TableConfig tableConfig, boolean onlyPriKey) {
 		// 带缓存的返回结果字符串
 		StringBuffer result = new StringBuffer();
 		// set集合用于去重
 		Set<String> filter = new HashSet<String>();
 		// 获取需要引入的类的全路径
 		for(TableField field : tableConfig.getFields()) {
-			// 获取java类型类的全路径
-			String typeQualifiedClass = TypeConverter.getClassNameOrQualifiedName(field.getJavaType());
-			// java.lang.*不需要引入，程序会自动引入
-			if(!typeQualifiedClass.startsWith("java.lang")) {
-				filter.add("import " + typeQualifiedClass + ";\n");
+			if(!onlyPriKey || field.getKey() != null && "PRI".equals(field.getKey())) {
+				// 获取java类型类的全路径
+				String typeQualifiedClass = TypeConverter.getClassNameOrQualifiedName(field.getJavaType());
+				// java.lang.*不需要引入，程序会自动引入
+				if(!typeQualifiedClass.startsWith("java.lang")) {
+					filter.add("import " + typeQualifiedClass + ";\n");
+				}
 			}
 		}
 		// 拼接字符串

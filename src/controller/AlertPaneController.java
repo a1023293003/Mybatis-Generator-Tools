@@ -10,6 +10,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.KeyCode;
 import javafx.scene.layout.AnchorPane;
 import util.ImageGenerator;
 
@@ -110,6 +111,7 @@ public class AlertPaneController extends BaseController implements Alert {
 	}
 	
 	/**
+	 * TODO 实现方式太拖沓
 	 * 初始化方法
 	 */
 	@Override
@@ -118,7 +120,7 @@ public class AlertPaneController extends BaseController implements Alert {
 		// 初始化提示面板
 		this.setAlertStyle("", this.NONE, null);
 		
-		// 确认按钮添加鼠标单击时间监听
+		// 确认按钮添加鼠标单击事件监听
 		this.confirm.setOnMouseClicked(event -> {
 			// 创建dto
 			this.setDto(new HashMap<Object, Object>(1));
@@ -126,6 +128,19 @@ public class AlertPaneController extends BaseController implements Alert {
 			this.getDto().put("userChoice", true);
 			// 关闭窗口
 			this.closeCurrStage();
+		});
+		
+		// 确认按钮添加键盘回车监听
+		this.confirm.setOnKeyPressed(event -> {
+			// 按下了回车键
+			if(event.getCode() == KeyCode.ENTER) {
+				// 创建dto
+				this.setDto(new HashMap<Object, Object>(1));
+				// 赋值
+				this.getDto().put("userChoice", true);
+				// 关闭窗口
+				this.closeCurrStage();
+			}
 		});
 		
 		// 取消按钮添加鼠标单击事件监听
@@ -136,6 +151,19 @@ public class AlertPaneController extends BaseController implements Alert {
 			this.getDto().put("userChoice", false);
 			// 关闭窗口
 			this.closeCurrStage();
+		});
+		
+		// 取消按钮添加鼠标单击事件监听
+		this.cancel.setOnKeyPressed(event -> {
+			// 按下了回车键
+			if(event.getCode() == KeyCode.ENTER) {
+				// 创建dto
+				this.setDto(new HashMap<Object, Object>(1));
+				// 赋值
+				this.getDto().put("userChoice", false);
+				// 关闭窗口
+				this.closeCurrStage();
+			}
 		});
 	};
 	
