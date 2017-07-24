@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 
 import Interface.Alert;
 import controller.AlertPaneController;
+import dbAction.MySQLAction;
 import javafx.stage.Stage;
 
 /**
@@ -72,6 +73,43 @@ public class Tools {
 			);
 		}
 		e.printStackTrace();
+	}
+	
+	/**
+	 * 通过传入的数据库字段名获取映射的属性名
+	 * <pre>
+	 * 把字段名中的'_'去掉，并让'_'字符后一个字母大写
+	 * </pre>
+	 * @see controller.NewConnectionController#loadDto(MySQLAction)
+	 * @see controller.MainFrameController#readConfigFromDto(String, Map)
+	 * @param field [String]字段名
+	 * @return [String]属性名
+	 */
+	public static String removeUnderlineAndcapitalNextChar(String field) {
+		if(field == null) throw new RuntimeException();
+		char[] s = field.toCharArray();
+		int underlineNum = 0;
+		for(int i = 0; i < s.length; i ++) {
+			if(s[i] == '_') {
+				underlineNum ++;
+			}
+		}
+		if(underlineNum > 0) {
+			char[] res = new char[s.length - underlineNum];
+			for(int i = 0, k = 0; i < s.length; i ++) {
+				if(s[i] == '_') {
+					int tmp = i + 1;
+					if(tmp < s.length && s[tmp] >= 97 && s[tmp] <= 122) {
+						res[k ++] = (char) (s[++ i] - 32);
+					}
+				} else {
+					res[k ++] = s[i];
+				}
+			}
+			return String.valueOf(res);
+		} else {
+			return String.valueOf(s);
+		}
 	}
 	
 	/**

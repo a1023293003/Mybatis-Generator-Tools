@@ -253,11 +253,13 @@ public class NewConnectionController extends BaseController {
 			List<TableField> tableFields = dao.getField(databaseName.getText(), table);
 			for(TableField tableField : tableFields) {
 				// 默认映射属性名为表名
-				tableField.setCustomizedField(tableField.getField());
+				tableField.setCustomizedField(Tools.removeUnderlineAndcapitalNextChar(tableField.getField()));
 				// 默认java类型 
 				tableField.setJavaType(TypeConverter.jdbcTypeToJavaTypeClassName(tableField.getType()));
 				// jdbc类型
-				String type = Tools.toUpperCaseLetters(tableField.getType().substring(0, tableField.getType().indexOf("(")));
+				int len = tableField.getType().indexOf("(");
+				len = len == -1? tableField.getType().length() : len;
+				String type = Tools.toUpperCaseLetters(tableField.getType().substring(0, len));
 				tableField.setJdbcType(type.equals("INT") ? "INTEGER" : type);
 			}
 			// 表字段配置存储到dto中

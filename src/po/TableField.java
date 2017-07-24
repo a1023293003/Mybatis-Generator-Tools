@@ -101,8 +101,8 @@ public class TableField {
 
 	@Override
 	public String toString() {
-		return "TableField [field=" + field + ", type=" + type + ", key=" + key + ", customizedField=" + customizedField
-				+ ", javaType=" + javaType + "]";
+		return "TableField [field=" + field + ", type=" + type + ", jdbcType=" + jdbcType + ", key=" + key
+				+ ", customizedField=" + customizedField + ", javaType=" + javaType + ", comment=" + comment + "]";
 	}
 	
 }

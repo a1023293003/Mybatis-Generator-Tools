@@ -368,7 +368,14 @@ public class MainFrameController extends BaseController {
 		// 找到根目录
 		int index = path.indexOf("src");
 		if(index == -1) return null;
-		path = path.substring(index + 4);
+		// 特判处理maven项目结构
+		int tmp = path.indexOf("src\\main\\java\\");
+		if(tmp != -1) {
+			index += 14;
+		} else {
+			index += 4;
+		}
+		path = path.substring(index);
 		_LOG.info("截取出来的路径：" + path);
 		return path.replace("\\", ".");
 	}
@@ -505,8 +512,8 @@ public class MainFrameController extends BaseController {
 		// 设置默认路径
 		if(initDirectory != null) directoryChooser.setInitialDirectory(initDirectory);
 		// 设置父父窗口层，子窗口弹出时父窗口堵塞
-        File selectedFolder = directoryChooser.showDialog(this.getCurrStage());
-        return selectedFolder.getAbsolutePath();
+		File selectedFolder = directoryChooser.showDialog(this.getCurrStage());
+		return selectedFolder.getAbsolutePath();
 	}
 	
 	/**
@@ -617,12 +624,12 @@ public class MainFrameController extends BaseController {
 				break;
 			}
 		}
-		// 设置表名
+		// 设置表名,用于生成sql语句
 		tmpConfig.setTableName(table);
 		// 表名就是默认pojo类名，首字母大写
-		tmpConfig.setPojoClassName(Tools.capitalFirstChar(table));
+		tmpConfig.setPojoClassName(Tools.removeUnderlineAndcapitalNextChar(Tools.capitalFirstChar(table)));
 		// 表名+Mapper就是mapper名， 首字母大写
-		tmpConfig.setMapperClassName(Tools.capitalFirstChar(table + "Mapper"));
+		tmpConfig.setMapperClassName(Tools.removeUnderlineAndcapitalNextChar(Tools.capitalFirstChar(table + "Mapper")));
 		// 存储到表配置Map中
 		this.tableConfigs.put(table, tmpConfig);
 	}
