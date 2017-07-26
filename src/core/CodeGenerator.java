@@ -384,19 +384,20 @@ public class CodeGenerator {
 		resultMap.append("	<resultMap id=\"BaseResultMap\" type=\"" + tableConfig.getPojoPackage() + "." + tableConfig.getPojoClassName() + "\">\n");
 		// 遍历所有属性
 		for(TableField field : tableConfig.getFields()) {
+			// 特判处理jdbcType
 			if(field.getKey().equals("PRI")) {
 				// 主键作为标识符
 				ids.append("		<id column=\"" + 
 						field.getField() + "\" property=\"" + 
 						field.getCustomizedField() + "\" jdbcType=\"" + 
-						field.getJdbcType() + "\" />\n"
+						adaptMybatisJdbcType(field.getJdbcType()) + "\" />\n"
 				);
 			} else {
 				// 其它字段
 				results.append("		<result column=\"" + 
 						field.getField() + "\" property=\"" + 
 						field.getCustomizedField() + "\" jdbcType=\"" + 
-						field.getJdbcType() + "\" />\n"
+						adaptMybatisJdbcType(field.getJdbcType()) + "\" />\n"
 				);
 			}
 		}
@@ -605,7 +606,7 @@ public class CodeGenerator {
 			// 字段对应的首字母大写的java属性名
 			temp = temp.replace("$CapitalFirstCharCustomizedField", Tools.capitalFirstChar(field.getCustomizedField()));
 			// 字段的jdbc类型
-			temp = temp.replace("$JdbcType", field.getJdbcType());
+			temp = temp.replace("$JdbcType", adaptMybatisJdbcType(field.getJdbcType()));
 			// 字段的java类型
 			temp = temp.replace("$JavaType", field.getJavaType());
 			// 追加数据
@@ -624,6 +625,23 @@ public class CodeGenerator {
 			result = result.replaceAll("(.*?)" + suffixOverrides + "(" + suffix + ")$", "$1$2");
 		}
 		return result;
+	}
+	
+	/**
+	 * 特判处理掉mysql中DATETIME、TEXT等类型数据的jdbcType异常问题
+	 * @see core.CodeGenerator#concatBaseTemplate(TableConfig, String, boolean, boolean, String, String, String, String) 拼接基础模块
+	 * @see core.CodeGenerator#generatingResultMap(TableConfig) 生成mapper.xml中的resultMap
+	 * @param jdbcType [String]数据库中的类型
+	 * @return [String]mybatis中枚举映射类型
+	 */
+	private static String adaptMybatisJdbcType(String jdbcType) {
+		if(jdbcType == null) throw new RuntimeException("jdbcType 不能为空！");
+		if("DATETIME".equals(jdbcType)) {
+			jdbcType = "TIMESTAMP";
+		} else if("TEXT".equals(jdbcType)) {
+			jdbcType = "CLOB";
+		}
+		return jdbcType;
 	}
 	
 	/**
