@@ -216,6 +216,9 @@ public class MainFrameController extends BaseController {
 			// 不是根目录才有效
 			if(!isRoot) {
 				// 保存配置
+				this.saveConfigFromUI(
+						this.center_dbTreeView.getSelectionModel().getSelectedItem().getValue());
+				// 同步配置
 				this.syncConfigIntoTables(
 						this.center_dbTreeView.getSelectionModel().getSelectedItem().getValue());
 			}
@@ -578,7 +581,7 @@ public class MainFrameController extends BaseController {
 	 * @param table [String]表名
 	 */
 	private void saveConfigFromUI(String table) {
-		// 获取当前表的原始配合
+		// 获取当前表的原始配置
 		TableConfig tableConfig = this.tableConfigs.get(table);
 		// pojo类名
 		tableConfig.setPojoClassName(this.pojoClassName.getText());
@@ -596,6 +599,19 @@ public class MainFrameController extends BaseController {
 		tableConfig.setBuildExample(this.isBuildExample.isSelected());
 		// 是否生成注释
 		tableConfig.setBuildNote(this.isBuildNotes.isSelected());
+	}
+	
+	/**
+	 * 过滤pojo类类名和mapper类类名
+	 * @param className [String]类名
+	 * @return
+	 */
+	private String filterClassName(String className) {
+		if(className.length() >= 2 && className.charAt(0) == 'T' &&
+				className.charAt(1) >= 'A' && className.charAt(1) <= 'Z') {
+			return className.substring(1);
+		}
+		return className;
 	}
 	
 	/**
@@ -628,13 +644,14 @@ public class MainFrameController extends BaseController {
 		// 设置表名,用于生成sql语句
 		tmpConfig.setTableName(table);
 		// 表名就是默认pojo类名，首字母大写
-		tmpConfig.setPojoClassName(Tools.removeUnderlineAndcapitalNextChar(Tools.capitalFirstChar(table)));
+		tmpConfig.setPojoClassName(filterClassName(
+				Tools.removeUnderlineAndcapitalNextChar(Tools.capitalFirstChar(table))));
 		// 表名+Mapper就是mapper名， 首字母大写
-		tmpConfig.setMapperClassName(Tools.removeUnderlineAndcapitalNextChar(Tools.capitalFirstChar(table + "Mapper")));
+		tmpConfig.setMapperClassName(filterClassName(
+				Tools.removeUnderlineAndcapitalNextChar(Tools.capitalFirstChar(table + "Mapper"))));
 		// 存储到表配置Map中
 		this.tableConfigs.put(table, tmpConfig);
 	}
-	
 	
 	/**
 	 * TODO 代码冗余

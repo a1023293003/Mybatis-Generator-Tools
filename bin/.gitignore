@@ -1,3 +1,5 @@
+/Interface/
+/application/
 /controller/
 /core/
 /dbAction/
@@ -5,4 +7,3 @@
 /po/
 /test/
 /util/
-/application/

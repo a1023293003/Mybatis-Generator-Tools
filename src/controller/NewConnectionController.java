@@ -272,7 +272,7 @@ public class NewConnectionController extends BaseController {
 			// 设置表字段配置中的默认映射属性名和java类型
 			List<TableField> tableFields = dao.getField(databaseName.getText(), table);
 			for(TableField tableField : tableFields) {
-				// 默认映射属性名为表名
+				// 默认映射属性名为字段名
 				tableField.setCustomizedField(Tools.removeUnderlineAndcapitalNextChar(tableField.getField()));
 				// 默认java类型 
 				tableField.setJavaType(TypeConverter.jdbcTypeToJavaTypeClassName(tableField.getType()));
