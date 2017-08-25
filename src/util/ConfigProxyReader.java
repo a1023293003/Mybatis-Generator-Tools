@@ -181,11 +181,27 @@ public class ConfigProxyReader {
 	}
 	
 	/**
+	 * 获取设置界面标题
+	 * @return
+	 */
+	public static String getSettingTitle() {
+		return BaseConfig.getValue("setting.title");
+	}
+	
+	/**
 	 * 读取默认提示框fxml路径
 	 * @return
 	 */
 	public static String getDefaultAlertFxmlPath() {
 		return PageConfig.getValue("defaultAlert.fxmlPath");
+	}
+	
+	/**
+	 * 读取默认设置fxml路径
+	 * @return
+	 */
+	public static String getDefaultSettingFxmlPath() {
+		return PageConfig.getValue("defaultSetting.fxmlPath");
 	}
 	
 	/**

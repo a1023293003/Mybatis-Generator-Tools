@@ -200,6 +200,20 @@ public class MainFrameController extends BaseController {
 				ImageGenerator.createImageView(ImageGenerator.CONFIG, 40, 40));
 		// 设置图片显示在文字上面
 		this.top_config.setContentDisplay(ContentDisplay.TOP);
+		// 添加点击事件
+		this.top_config.setOnMouseClicked(event -> {
+			_LOG.info("弹出【设置】窗口");
+			BaseController controller = this.createDialog(
+					getCurrStage(), 
+					ConfigProxyReader.getSettingTitle(), 
+					ConfigProxyReader.getDefaultSettingFxmlPath()
+			);
+			// 弹出窗口添加关闭监听
+			controller.getCurrStage().setOnHidden(closeEvent -> {
+				// 读取dto中的值
+				this.settingAction(controller.getDto());
+			});
+		});
 		
 		// 保存设置添加点击事件
 		this.saveConfigButton.setOnMouseClicked(event -> {
@@ -362,6 +376,116 @@ public class MainFrameController extends BaseController {
 		
 	}
 	
+	/**
+	 * 所有pojo,mapper类名添加前后缀
+	 * @param prefix [String]
+	 */
+	private void addPrefixAndPostfix(String prefix, String postfix) {
+		prefix = Tools.isNotEmpy(prefix) ? prefix : "";
+		postfix = Tools.isNotEmpy(postfix) ? postfix : "";
+		// 遍历所有表的所有配置
+		for(TableConfig tableConfig : this.tableConfigs.values()) {
+			tableConfig.setPojoClassName(prefix + tableConfig.getPojoClassName() + postfix);
+			tableConfig.setMapperClassName(prefix + tableConfig.getMapperClassName() + postfix);
+		}
+	}
+	
+	/**
+	 * 删除前缀
+	 * @param target [String]目标字符串
+	 * @param prefix [String]前缀
+	 * @return
+	 */
+	private static final String delPrefix(String target, String prefix) {
+		if(target.startsWith(prefix)) {
+			return target.substring(prefix.length());
+		} else {
+			return target;
+		}
+	}
+	
+	/**
+	 * 删除后缀
+	 * @param target [String]目标字符串
+	 * @param postfix [String]后缀
+	 * @return
+	 */
+	private static final String delPostfix(String target, String postfix) {
+		if(target.endsWith(postfix)) {
+			return target.substring(0, target.length() - postfix.length());
+		} else {
+			return target;
+		}
+	}
+	
+	/**
+	 * 所有pojo,mapper类名删除前后缀
+	 * @param prefix [String]
+	 */
+	private void delPrefixAndPostfix(String prefix, String postfix) {
+		prefix = Tools.isNotEmpy(prefix) ? prefix : "";
+		postfix = Tools.isNotEmpy(postfix) ? postfix : "";
+		// 遍历所有表的所有配置
+		for(TableConfig tableConfig : this.tableConfigs.values()) {
+			tableConfig.setPojoClassName(
+					delPrefix(tableConfig.getPojoClassName(), prefix));
+			tableConfig.setPojoClassName(
+					delPostfix(tableConfig.getPojoClassName(), postfix));
+			tableConfig.setMapperClassName(
+					delPrefix(tableConfig.getMapperClassName(), prefix));
+			tableConfig.setMapperClassName(
+					delPostfix(tableConfig.getMapperClassName(), postfix));
+		}
+	}
+	
+	/**
+	 * 对所有pojo,mapper类名执行正则替换操作
+	 * @param regex [String]正则表达式
+	 * @param replacement [String]正则替换式
+	 */
+	private void regexClassName(String regex, String replacement) {
+		if(!Tools.isNotEmpy(regex) || !Tools.isNotEmpy(replacement)) {
+			return;
+		} else {
+			// 遍历所有表的所有配置
+			for(TableConfig tableConfig : this.tableConfigs.values()) {
+				tableConfig.setPojoClassName(
+						tableConfig.getPojoClassName().replaceAll(regex, replacement));
+				tableConfig.setMapperClassName(
+						tableConfig.getMapperClassName().replaceAll(regex, replacement));
+			}
+		}
+	}
+	
+	/**
+	 * 设置界面响应操作
+	 * @param dto [Map<Object, Object>]设置界面返回值
+	 */
+	private void settingAction(Map<Object, Object> dto) {
+		if(this.tableConfigs == null) {
+			_LOG.debug("未连接数据库！");
+			return;
+		}
+		else if((boolean) dto.get("hasResult")) {
+			// 添加前后缀
+			addPrefixAndPostfix((String) dto.get("addPrefix"), 
+					(String) dto.get("addPostfix"));
+			// 删除前后缀
+			delPrefixAndPostfix((String) dto.get("delPrefix"), 
+					(String) dto.get("delPostfix"));
+			// 正则匹配
+			regexClassName((String) dto.get("regex"), 
+					(String) dto.get("replacement"));
+			TreeItem<String> item = center_dbTreeView.getSelectionModel().selectedItemProperty().get();
+			if(item != center_dbTreeView.getRoot()) {
+				// 显示表的配置内容
+				showConfigIntoUI(item.getValue());
+			}
+		} else {
+			_LOG.debug("设置界面无返回值");
+		}
+	}
+
 	/**
 	 * 通过路径截取包名
 	 * @param path [String]路径
@@ -602,19 +726,6 @@ public class MainFrameController extends BaseController {
 	}
 	
 	/**
-	 * 过滤pojo类类名和mapper类类名
-	 * @param className [String]类名
-	 * @return
-	 */
-	private String filterClassName(String className) {
-		if(className.length() >= 2 && className.charAt(0) == 'T' &&
-				className.charAt(1) >= 'A' && className.charAt(1) <= 'Z') {
-			return className.substring(1);
-		}
-		return className;
-	}
-	
-	/**
 	 * 读取新建连接界面传输回来的dto数据，并存储到tableConfigs中
 	 * 
 	 * <pre>
@@ -644,11 +755,11 @@ public class MainFrameController extends BaseController {
 		// 设置表名,用于生成sql语句
 		tmpConfig.setTableName(table);
 		// 表名就是默认pojo类名，首字母大写
-		tmpConfig.setPojoClassName(filterClassName(
-				Tools.removeUnderlineAndcapitalNextChar(Tools.capitalFirstChar(table))));
+		tmpConfig.setPojoClassName(
+				Tools.removeUnderlineAndcapitalNextChar(Tools.capitalFirstChar(table)));
 		// 表名+Mapper就是mapper名， 首字母大写
-		tmpConfig.setMapperClassName(filterClassName(
-				Tools.removeUnderlineAndcapitalNextChar(Tools.capitalFirstChar(table + "Mapper"))));
+		tmpConfig.setMapperClassName(
+				Tools.removeUnderlineAndcapitalNextChar(Tools.capitalFirstChar(table + "Mapper")));
 		// 存储到表配置Map中
 		this.tableConfigs.put(table, tmpConfig);
 	}

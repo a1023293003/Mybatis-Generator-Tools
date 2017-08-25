@@ -42,6 +42,67 @@ public class Tools {
 	}
 	
 	/**
+	 * 判断是否是字母
+	 * @param c [char]待判断字符
+	 * @return
+	 */
+	public static boolean isLetter(char c) {
+		return isLowerLetter(c) || isUpperLetter(c);
+	}
+	
+	/**
+	 * 判断是否是小写字母
+	 * @param c [char]待判断字符
+	 * @return
+	 */
+	public static boolean isLowerLetter(char c) {
+		return c >= 'a' && c <= 'z';
+	}
+	
+	/**
+	 * 判断是否是大写字母
+	 * @param c [char]待判断字符
+	 * @return
+	 */
+	public static boolean isUpperLetter(char c) {
+		return c >= 'A' && c <= 'Z';
+	}
+	
+	/**
+	 * 判断是否是数字
+	 * @param c [char]待判断字符
+	 * @return
+	 */
+	public static boolean isNumber(char c) {
+		return c >= '0' && c <= '9';
+	}
+	
+	/**
+	 * 判断是字符串是否是合法的命名符
+	 * @param source [String]待判断字符串
+	 * @return
+	 */
+	public static boolean validNameStr(String source) {
+		char[] buf = source.toCharArray();
+		for(int i = 0; i < buf.length; i ++) {
+			if(!isLetter(buf[i]) && buf[i] != '_' && 
+					buf[i] != '$' && !isNumber(buf[i])) {
+				return false;
+			}
+		}
+		return true;
+	}
+	
+	/**
+	 * 判断字符串是否不为空
+	 * @param str
+	 * @return
+	 */
+	public static boolean isNotEmpy(String str) {
+		return str != null && str.length() > 0;
+	}
+	
+	/**
 	 * 异常统一处理方法
 	 * 
 	 * 分析异常类型，并弹出提示框
