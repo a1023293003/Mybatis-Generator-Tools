@@ -138,7 +138,7 @@ public class MySQLAction {
 	 */
 	public List<TableField> getField(String database, String table) {
 		return this.resultSetToList(
-				this.executeQuery(database, "show full columns from " + table), 
+				this.executeQuery(database, "show full columns from " + database + "." + table), 
 				TableField.class, 
 				new String[]{"field", "type", "key", "comment"}
 		);
@@ -171,6 +171,7 @@ public class MySQLAction {
 					this.connection).prepareStatement(useDatabase
 			);
 			pstmt.execute();
+			System.out.println("sql" + sql);
 			// 执行操作语句并返回结果集合
 			pstmt = Tools.isNull(this.connection).prepareStatement(sql);
 			return pstmt.executeQuery();
