@@ -496,7 +496,7 @@ public class CodeGenerator {
 			data = getPrefixSpaceData("$InsertSelectiveFields", 
 					concatBaseTemplate(tableConfig, 
 							"\t<if test=\"$CustomizedField != null\">\n" +
-							"\t	$CustomizedField,\n" +
+							"\t	$Field,\n" +
 							"\t</if>\n", 
 							true, true, "", "", "", "\n"), 
 					data
@@ -520,7 +520,7 @@ public class CodeGenerator {
 			data = getPrefixSpaceData("$UpdateSelectiveFields", 
 					concatBaseTemplate(tableConfig, 
 							"\t<if test=\"record.$CustomizedField != null\">\n" +
-							"\t	$CustomizedField = #{record.$CustomizedField, jdbcType=$JdbcType},\n" +
+							"\t	$Field = #{record.$CustomizedField, jdbcType=$JdbcType},\n" +
 							"\t</if>\n", 
 							true, true, "", "", "", "\n"), 
 					data
@@ -532,7 +532,7 @@ public class CodeGenerator {
 			data = getPrefixSpaceData("$UpdateNotPrimaryKeySelectiveFields", 
 					concatBaseTemplate(tableConfig, 
 							"\t<if test=\"$CustomizedField != null\">\n" +
-							"\t	$CustomizedField = #{$CustomizedField, jdbcType=$JdbcType},\n" +
+							"\t	$Field = #{$CustomizedField, jdbcType=$JdbcType},\n" +
 							"\t</if>\n", 
 							false, true, "", "", "", "\n"), 
 					data
@@ -542,7 +542,7 @@ public class CodeGenerator {
 		if(data.contains("$UpdateFields")) {
 			// 占位符替换成基础模板
 			data = getPrefixSpaceData("$UpdateFields", 
-					concatBaseTemplate(tableConfig, "\t$CustomizedField = #{$CustomizedField, jdbcType=$JdbcType},\n", 
+					concatBaseTemplate(tableConfig, "\t$Field = #{$CustomizedField, jdbcType=$JdbcType},\n", 
 							true, true, "", "", "", ",\n"), 
 					data
 			);
@@ -551,7 +551,7 @@ public class CodeGenerator {
 		if(data.contains("$UpdateNotPrimaryKeyFields")) {
 			// 占位符替换成基础模板
 			data = getPrefixSpaceData("$UpdateNotPrimaryKeyFields", 
-					concatBaseTemplate(tableConfig, "\t$CustomizedField = #{$CustomizedField, jdbcType=$JdbcType},\n", 
+					concatBaseTemplate(tableConfig, "\t$Field = #{$CustomizedField, jdbcType=$JdbcType},\n", 
 							false, true, "", "", "", ",\n"), 
 					data
 			);
