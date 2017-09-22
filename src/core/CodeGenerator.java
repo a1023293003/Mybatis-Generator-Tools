@@ -442,7 +442,6 @@ public class CodeGenerator {
 			// 插入方法
 			methods.append("	" + method + "\n");
 		}
-		
 		return methods.toString();
 	}
 	
